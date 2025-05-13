@@ -1,8 +1,40 @@
+"use client";
+
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react";
 import { Search, ChevronRight } from "lucide-react"
 
-export default function Home() {
+export default function DestinasiListPage() {
+  const [destinasiList, setDestinasiList] = useState<any[]>([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Ambil daftar destinasi dari backend
+    const fetchDestinasiList = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/destinasi");
+        if (!response.ok) {
+          throw new Error("Gagal memuat daftar destinasi");
+        }
+        const data = await response.json();
+        setDestinasiList(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+
+    fetchDestinasiList();
+  }, []);
+
+  if (error) {
+    return <div className="container mx-auto px-4 py-6">Error: {error}</div>;
+  }
+
+  if (destinasiList.length === 0) {
+    return <div className="container mx-auto px-4 py-6">Loading...</div>;
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Stats Section */}
@@ -13,11 +45,11 @@ export default function Home() {
         </div>
         <div className="stat-box">
           <p className="text-sm">Kabupaten/Kota Terfavorit</p>
-          <p className="text-sm font-bold">Kabupaten Bandung Barat</p>
+          <p className="text-xl font-bold">Kabupaten Bandung Barat</p>
         </div>
         <div className="stat-box">
           <p className="text-sm">Destinasi Wisata Terpopuler</p>
-          <p className="text-sm font-bold">Curug Malela</p>
+          <p className="text-xl font-bold">Curug Malela</p>
         </div>
         <div className="stat-box">
           <p className="text-sm">Jumlah Wisatawan Mancanegara</p>
@@ -60,110 +92,28 @@ export default function Home() {
       </div>
 
       {/* Destination Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <Link href="/destinasi/curug-malela" className="destination-card">
+      <div className="container mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {destinasiList.map((destinasi) => (
+        <Link
+          key={destinasi.id}
+          href={`/destinasi/${destinasi.slug}`}
+          className="destination-card"
+        >
           <Image
-            src="/curugmalela.jpg?height=150&width=300"
-            alt="Curug Malela"
+            src={destinasi.gambar || "/placeholder.svg"}
+            alt={destinasi.nama}
             width={300}
             height={150}
             className="w-full h-full object-cover"
           />
-          <div className="label">Curug Malela</div>
+          <div className="label">{destinasi.nama}</div>
           <div className="new-badge">New</div>
         </Link>
-        <Link href="/destinasi/telaga-nilam" className="destination-card">
-          <Image
-            src="/telaganilem.jpeg?height=150&width=300"
-            alt="Telaga Nilam"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Telaga Nilam</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/gua-sunyaragi" className="destination-card">
-          <Image
-            src="/guasunyaragi.jpeg?height=150&width=300"
-            alt="Gua Sunyaragi"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Gua Sunyaragi</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/taman-safari" className="destination-card">
-          <Image
-            src="/tamansafari.jpeg?height=150&width=300"
-            alt="Taman Safari"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Taman Safari</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/gunung-papandayan" className="destination-card">
-          <Image
-            src="/gunungpapandayan.jpeg?height=150&width=300"
-            alt="Gunung Papandayan"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Gunung Papandayan</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/curug-putri" className="destination-card">
-          <Image
-            src="/curugputri.jpeg?height=150&width=300"
-            alt="Curug Putri Palutungan"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Curug Putri Palutungan</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/pantai-sayang" className="destination-card">
-          <Image
-            src="/sayangheulang.jpeg?height=150&width=300"
-            alt="Pantai Sayang Heulang"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Pantai Sayang Heulang</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/canal-batujaya" className="destination-card">
-          <Image
-            src="/candijiwa.jpeg?height=150&width=300"
-            alt="Canal Jiwa Batujaya"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Canal Jiwa Batujaya</div>
-          <div className="new-badge">New</div>
-        </Link>
-        <Link href="/destinasi/keraton-kasepuhan" className="destination-card">
-          <Image
-            src="/keratonkasepuhan.jpeg?height=150&width=300"
-            alt="Keraton Kasepuhan"
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">Keraton Kasepuhan</div>
-          <div className="new-badge">New</div>
-        </Link>
+      ))}
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-8">
+      <div className="flex justify-between items-center mt-2">
         <button className="bg-[#008275] text-white px-4 py-2 rounded-md flex items-center gap-2">
           Next Page
           <ChevronRight className="w-4 h-4" />
@@ -175,5 +125,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }

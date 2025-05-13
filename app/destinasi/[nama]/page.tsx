@@ -1,51 +1,54 @@
 "use client"
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-export default function CurugMalelaPage() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+export default function DestinasiPage({ params }: { params: { nama: string } }) {
+  const [destinasi, setDestinasi] = useState<any>(null);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-  const slides = [
-    "/curugmalela.jpg?height=400&width=800",
-    "/curugmalela2.jpg?height=400&width=800",
-    "/curugmalela3.jpeg?height=400&width=800",
-  ]
+  useEffect(() => {
+    // Ambil data destinasi dari backend
+    const fetchDestinasi = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/destinasi/${params.nama}`);
+        if (!response.ok) {
+          throw new Error("Destinasi tidak ditemukan");
+        }
+        const data = await response.json();
+        setDestinasi(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1))
+    fetchDestinasi();
+  }, [params.nama]);
+
+  if (error) {
+    return <div className="container mx-auto px-4 py-6">Error: {error}</div>;
   }
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))
+  if (!destinasi) {
+    return <div className="container mx-auto px-4 py-6">Loading...</div>;
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6">Curug Malela</h1>
+      <h1 className="text-3xl font-bold mb-6">{destinasi.nama}</h1>
 
       {/* Image Slider */}
       <div className="relative mb-8">
         <div className="overflow-hidden rounded-lg h-[400px] relative">
           <Image
-            src={slides[currentSlide] || "/placeholder.svg"}
-            alt={`Curug Malela Slide ${currentSlide + 1}`}
+            src={destinasi.gambar || "/placeholder.svg"}
+            alt={destinasi.nama}
             fill
             className="object-cover"
           />
         </div>
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 rounded-full p-2"
-        >
-          <ChevronLeft className="w-6 h-6 text-[#008275]" />
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 rounded-full p-2"
-        >
-          <ChevronRight className="w-6 h-6 text-[#008275]" />
-        </button>
       </div>
 
       {/* Info Section */}
@@ -59,7 +62,7 @@ export default function CurugMalelaPage() {
 
         {/* Weather Info */}
         <div className="border border-gray-200 rounded-lg p-4">
-          <h3 className="text-lg font-medium mb-2">Cuaca Hari Ini di Curug Malela</h3>
+          <h3 className="text-lg font-medium mb-2">Cuaca Hari Ini di {destinasi.nama}</h3>
           <div className="flex flex-col items-center">
             <p className="text-sm text-gray-500">Terasa spt</p>
             <div className="text-6xl font-bold flex items-start">
