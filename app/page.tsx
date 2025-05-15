@@ -11,11 +11,9 @@ export default function Home() {
           <span className="text-[#008275] font-medium">| Tourism Information Center</span>
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link href="#" className="text-[#4a4a4a] hover:text-[#008275]">Profile</Link>
-          <Link href="#" className="text-[#4a4a4a] hover:text-[#008275]">Berita</Link>
+          <Link href="/profile" className="text-[#4a4a4a] hover:text-[#008275]">Profile</Link>
+          <Link href="/berita" className="text-[#4a4a4a] hover:text-[#008275]">Berita</Link>
           <Link href="/destinasi" className="text-[#4a4a4a] hover:text-[#008275]">Destinasi Wisata</Link>
-          <Link href="#" className="text-[#4a4a4a] hover:text-[#008275]">Galeri</Link>
-          <Link href="#" className="text-[#4a4a4a] hover:text-[#008275]">Kontak</Link>
           <Link href="/login" className="bg-[#008275] text-white px-4 py-1.5 rounded hover:bg-[#006e67]">Masuk</Link>
         </nav>
       </header>

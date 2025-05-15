@@ -8,8 +8,8 @@ import Image from "next/image"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Tourism Information Center",
-  description: "Tourism Information Center for West Java",
+  title: "Jawa Barat Tourism Information Center",
+  description: "Tourism Information Center for Jawa Barat, Indonesia",
 }
 
 export default function RootLayout({
@@ -26,13 +26,13 @@ export default function RootLayout({
               <Image
                 src="/tic.png?height=40&width=40"
                 alt="Logo"
-                width={40}
-                height={40}
+                width={70}
+                height={70}
                 className="rounded-full"
               />
-              <Link href="/" className="text-[#008275] font-medium">Tourism Information Center</Link>
+              <Link href="/" className="text-[#008275]">| Tourism Information Center</Link>
             </div>
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6 text-sm">
               <Link href="/" className="text-[#4a4a4a] hover:text-[#008275]">
                 Profile
               </Link>
@@ -41,12 +41,6 @@ export default function RootLayout({
               </Link>
               <Link href="/destinasi" className="text-[#4a4a4a] hover:text-[#008275]">
                 Destinasi Wisata
-              </Link>
-              <Link href="/galeri" className="text-[#4a4a4a] hover:text-[#008275]">
-                Galeri
-              </Link>
-              <Link href="/kontak" className="text-[#4a4a4a] hover:text-[#008275]">
-                Kontak
               </Link>
               <Link href="/login" className="bg-[#008275] text-white px-4 py-1 rounded-md">
                 Masuk
