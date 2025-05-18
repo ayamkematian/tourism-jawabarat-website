@@ -4,19 +4,29 @@ import Link from "next/link"
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-[#2d2d2d]">
-      {/* Header */}
-      <header className="w-full bg-white py-1 px-6 flex items-center justify-between shadow">
-        <div className="flex items-center gap-2">
-          <Image src="/tic.png" alt="Tourism Logo" width={70} height={70} />
-          <span className="text-[#008275] font-medium">| Tourism Information Center</span>
+      {/* Navigation Bar */}
+      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
+        <div className="flex items-center">
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
+          <div className="border-l-2 border-teal-600 pl-2">
+            <span className="text-[#008275] font-semibold">Tourism Information Center</span>
+          </div>
         </div>
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link href="/profile" className="text-[#4a4a4a] hover:text-[#008275]">Profile</Link>
-          <Link href="/berita" className="text-[#4a4a4a] hover:text-[#008275]">Berita</Link>
-          <Link href="/destinasi" className="text-[#4a4a4a] hover:text-[#008275]">Destinasi Wisata</Link>
-          <Link href="/login" className="bg-[#008275] text-white px-4 py-1.5 rounded hover:bg-[#006e67]">Masuk</Link>
-        </nav>
-      </header>
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/profile" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Profile
+          </Link>
+          <Link href="/berita" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Berita
+          </Link>
+          <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Destinasi Wisata
+          </Link>
+          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+            Masuk
+          </Link>
+        </div>
+      </nav>
 
       {/* Hero Section */}
       <div className="relative h-[calc(100vh-72px)] w-full">

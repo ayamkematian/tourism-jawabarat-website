@@ -2,7 +2,7 @@
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import Link from "next/link"
 
 export default function DestinasiPage({ params }: { params: { nama: string } }) {
   const [destinasi, setDestinasi] = useState<any>(null);
@@ -37,8 +37,31 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6">{destinasi.nama}</h1>
+      {/* Navigation Bar */}
+      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
+        <div className="flex items-center">
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
+          <div className="border-l-2 border-teal-600 pl-2">
+            <Link href="/" className="text-[#008275] font-semibold">Tourism Information Center</Link>
+          </div>
+        </div>
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/profile" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Profile
+          </Link>
+          <Link href="/berita" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Berita
+          </Link>
+          <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Destinasi Wisata
+          </Link>
+          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+            Masuk
+          </Link>
+        </div>
+      </nav>
 
+      <h1 className="text-3xl font-bold mb-6">{destinasi.nama}</h1>
       {/* Image Slider */}
       <div className="relative mb-8">
         <div className="overflow-hidden rounded-lg h-[400px] relative">

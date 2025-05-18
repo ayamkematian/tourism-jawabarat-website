@@ -5,9 +5,23 @@ import Link from "next/link"
 import { useEffect, useState } from "react";
 import { Search, ChevronRight } from "lucide-react"
 
-export default function DestinasiListPage() {
+const featuredImages = [
+  "/gunungpadang.jpeg",
+  "/curugmalela.jpg",
+  "/sangyang.jpeg",
+];
+
+export default function Home() {
   const [destinasiList, setDestinasiList] = useState<any[]>([]);
   const [error, setError] = useState("");
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % featuredImages.length);
+    }, 3500); // Ganti gambar setiap 3.5 detik
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Ambil daftar destinasi dari backend
@@ -36,9 +50,33 @@ export default function DestinasiListPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <main className="min-h-screen bg-white">
+      {/* Navigation Bar */}
+      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
+        <div className="flex items-center">
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
+            <div className="border-l-2 border-teal-600 pl-2">
+                <Link href="/" className="text-[#008275] font-semibold">Tourism Information Center</Link>
+            </div>
+        </div>
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/profile" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Profile
+          </Link>
+          <Link href="/berita" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Berita
+          </Link>
+          <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Destinasi Wisata
+          </Link>
+          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+            Masuk
+          </Link>
+        </div>
+      </nav>
+
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="container mx-auto px-4 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="stat-box">
           <p className="text-sm">Jumlah Wisatawan Lokal</p>
           <p className="text-2xl font-bold">10.000.000</p>
@@ -58,7 +96,7 @@ export default function DestinasiListPage() {
       </div>
 
       {/* Search Section */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="container mx-auto px-4 py-2 flex flex-wrap gap-2 mb-2">
         <div className="flex items-center border border-gray-300 rounded-full px-4 py-1">
           <span className="text-sm">Wisata</span>
           <ChevronRight className="w-4 h-4 text-gray-400" />
@@ -80,19 +118,21 @@ export default function DestinasiListPage() {
       </div>
 
       {/* Featured Destinations */}
-      <div className="relative bg-[#008275]/10 p-6 rounded-lg mb-8">
-        <h2 className="text-2xl font-bold mb-2">
-          7 Destinasi Wisata <br />
-          Ter-favorit <br />
-          <span className="text-[#fbbb0e]">Jawa Barat</span>
-        </h2>
-        <Link href="/destinasi" className="absolute bottom-4 right-4">
-          <ChevronRight className="w-6 h-6 text-white bg-[#008275] rounded-full p-1" />
-        </Link>
+      <div
+        className="container px-4 relative w-full h-64 rounded-lg flex items-center justify-center transition-all duration-700"
+        style={{
+          backgroundImage: `url('${featuredImages[currentSlide]}')`,
+          backgroundSize: "fit",
+          backgroundPosition: "center 60%",
+        }}
+      >
+        <h1 className="text-white text-4xl font-bold text-center drop-shadow-lg px-4 py-2 rounded">
+          Temukan Cerita di Setiap Destinasi – Yuk, Jelajah Jawa Barat!
+        </h1>
       </div>
 
       {/* Destination Grid */}
-      <div className="container mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="container mx-auto px-4 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {destinasiList.map((destinasi) => (
         <Link
           key={destinasi.id}
@@ -113,7 +153,7 @@ export default function DestinasiListPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-2">
+      <div className="container mx-auto px-4 pb-8 flex justify-between items-center mt-2">
         <button className="bg-[#008275] text-white px-4 py-2 rounded-md flex items-center gap-2">
           Next Page
           <ChevronRight className="w-4 h-4" />
@@ -124,6 +164,6 @@ export default function DestinasiListPage() {
           <span>of 100</span>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
