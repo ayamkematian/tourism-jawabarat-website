@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "tourism-jawabarat",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -39,6 +39,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "autoprefixer": "^10.4.21",
     "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
