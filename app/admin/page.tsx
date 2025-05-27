@@ -21,7 +21,7 @@ export default function AdminDashboard() {
           </button>
           <button className="flex items-center gap-2">
             <Image src="/user.png" alt="Admin Image" width={40} height={40} />
-            <span>Ilham Khodar Trijaya</span>
+            <span>Haldi Alfiansyach</span>
           </button>
         </div>
       </header>

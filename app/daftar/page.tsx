@@ -99,7 +99,7 @@ export default function Login() {
         </div>
         <p className="mt-4 text-center text-white">
           Sudah punya akun?{' '}
-          <Link href="/login" className="underline hover:text-gray-300">
+          <Link href="/login/pengelola" className="underline hover:text-gray-300">
             Masuk
           </Link>
         </p>
