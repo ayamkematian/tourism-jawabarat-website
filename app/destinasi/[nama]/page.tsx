@@ -1,14 +1,108 @@
 "use client"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useRef,useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link"
+import {getDatabase, ref, child, get} from "firebase/database"
+import firebaseApp from "@/backend/firebase-sdk"
 
 export default function DestinasiPage({ params }: { params: { nama: string } }) {
   const [destinasi, setDestinasi] = useState<any>(null);
   const [error, setError] = useState("");
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const snapShot = useRef (null);
+  const [density, setDensity] = useState<number | null>(null);
+  const [rainStatus, setRainStatus] = useState<string | null>(null);
+  const [humidity, setHumidity] = useState<number | null>(null);
+  const [temperature, setTemperature] = useState<number | null>(null);
+  const rainPercent = rainStatus === "hujan" ? 100 : 0;
 
+  // Ambil data kepadatan dari Firebase
+  const getValue = async () => {
+    try {
+    const database = getDatabase(firebaseApp);
+    const rootReference = ref(database)
+    const dbGet = await get(child(rootReference, 'raspberry_data/BandungA2/density'))
+    const dbValue = dbGet.val()
+    setDensity(dbValue); // setelah ambil dari Firebase
+    console.log("Density:",dbValue);
+  } catch (error) {
+    console.error("Firebase DB Error:", error);
+  }
+};
+
+  // Ambil data cuaca berdasarkan Firebase
+  useEffect(() => {
+    getWeatherValue();
+  }
+  , []);
+  const getWeatherValue = async () => {
+    try {
+      const database = getDatabase(firebaseApp);
+      const rootReference = ref(database);
+      const snapshot = await get(child(rootReference, 'Sensor/BandungA1'));
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setHumidity(data.humidity);
+        setTemperature(data.temperature);
+        setRainStatus(data.rain_status); // ini string, bukan angka
+        console.log("Firebase data:", data);
+      } else {
+        console.warn("No data found at Sensor/BandungA1");
+      }
+    } catch (error) {
+      console.error("Firebase DB Error:", error);
+    }
+  };
+
+  
+  const getKepadatanStatus = (value: number) => {
+    if (value > 80) return "Sangat Padat";
+    if (value > 50) return "Padat";
+    if (value > 20) return "Renggang";
+    return "Sepi";
+  };
+
+  const getDensityColor = (value: number) => {
+    if (value > 80) return "bg-red-500/20 text-[#952020]";      // Sangat Padat
+    if (value > 50) return "bg-orange-400/20 text-orange-700";  // Padat
+    if (value > 20) return "bg-yellow-200 text-yellow-800";     // Renggang
+    return "bg-green-200 text-green-800";                       // Sepi
+  };
+
+  const getDensityLabel = (value: number) => {
+    if (value > 80) return "Sangat Padat";
+    if (value > 50) return "Padat";
+    if (value > 20) return "Renggang";
+    return "Sepi";
+  };
+  useEffect(() => {
+    getValue()
+  }, [])
+
+  useEffect(() => {
+    const getDensityValue = async () => {
+      try {
+        const database = getDatabase(firebaseApp);
+        const rootReference = ref(database);
+        const snapshot = await get(child(rootReference, 'raspberry_data/BandungA2/density'));
+        
+        if (snapshot.exists()) {
+          const dbValue = snapshot.val();
+          console.log("Density:", dbValue);
+          // Kamu bisa set state di sini kalau perlu
+        } else {
+          console.warn("No data found at raspberry_data/BandungA2/density");
+        }
+      } catch (err) {
+        console.error("Firebase DB Error:", err);
+      }
+    };
+  
+    getDensityValue();
+  }, []);
+  
   useEffect(() => {
     // Ambil data destinasi dari backend
     const fetchDestinasi = async () => {
@@ -78,10 +172,25 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Map */}
         <div className="bg-[#fafafa] rounded-lg p-4 h-[300px] relative">
-          <div className="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
-            <span className="text-[#952020] font-bold">Sangat Padat</span>
+        <div className={`absolute inset-0 rounded-lg flex items-center justify-center transition-all duration-300 ${ 
+          density !== null ? getDensityColor(density) : "bg-gray-200 text-gray-500"
+          }`}>
+            <span className="font-bold text-xl">
+              {
+                density === null
+                  ? "Memuat..."
+                  : density > 80
+                    ? "Sangat Padat"
+                    : density > 50
+                      ? "Padat"
+                      : density > 20
+                        ? "Renggang"
+                        : "Sepi"
+              }
+            </span>
           </div>
         </div>
+
 
         {/* Weather Info */}
         <div className="border border-gray-200 rounded-lg p-4">
@@ -89,9 +198,11 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
           <div className="flex flex-col items-center">
             <p className="text-sm text-gray-500">Terasa spt</p>
             <div className="text-6xl font-bold flex items-start">
-              29<span className="text-2xl">°</span>
+            {temperature !== null ? Math.round(temperature) : "--"}
+              <span className="text-2xl">°</span>
             </div>
 
+            {/* Kelembapan */}
             <div className="w-full mt-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="flex items-center gap-2">
@@ -121,13 +232,15 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
                   </svg>
                   Kelembapan
                 </span>
-                <span>70%</span>
+                <span>{humidity !== null ? `${Math.round(humidity)}%` : "--"}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-[#008275] h-2 rounded-full" style={{ width: "70%" }}></div>
+                <div className="bg-[#008275] h-2 rounded-full" style={{ width: humidity !== null ? `${Math.round(humidity)}%` : "0%" }}></div>
               </div>
             </div>
+            
 
+            {/* Hujan */}
             <div className="w-full mt-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="flex items-center gap-2">
@@ -149,10 +262,10 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
                   </svg>
                   Hujan
                 </span>
-                <span>70%</span>
+                <span>{rainStatus === "hujan" ? "Ya" : "Tidak"}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-[#008275] h-2 rounded-full" style={{ width: "70%" }}></div>
+                <div className="bg-[#008275] h-2 rounded-full" style={{ width: `${rainPercent}%` }}></div>
               </div>
             </div>
           </div>

@@ -26,6 +26,9 @@ export default function Home() {
             Masuk
           </Link>
         </div>
+        <button className="md:hidden bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+          Menu
+        </button>
       </nav>
 
       {/* Hero Section */}
@@ -66,17 +69,17 @@ export default function Home() {
         </p>
 
         {/* Gallery - Kolase Gambar */}
-        <div className="grid grid-cols-8 grid-rows-3 gap-2 mt-10">
-          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover w-full h-full col-span-1 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover w-full h-full col-span-2 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover w-full h-full col-span-1 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover w-full h-full col-span-2 row-span-2 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/gunungpadang.jpeg" alt="img5" className="rounded-lg object-cover w-full h-full col-span-2 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/gunungpapandayan.jpeg" alt="img6" className="rounded-lg object-cover w-full h-full col-span-2 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/sangyang.jpeg" alt="img7" className="rounded-lg object-cover w-full h-full col-span-2 row-span-2 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/sayangheulang.jpeg" alt="img8" className="rounded-lg object-cover w-full h-full col-span-2 row-span-2 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/tamansafari.jpeg" alt="img9" className="rounded-lg object-cover w-full h-full col-span-2 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/telaganilem.jpeg" alt="img10" className="rounded-lg object-cover w-full h-full col-span-2 row-span-1 transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-10">
+          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/gunungpadang.jpeg" alt="img5" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/gunungpapandayan.jpeg" alt="img6" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/sangyang.jpeg" alt="img7" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/sayangheulang.jpeg" alt="img8" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/tamansafari.jpeg" alt="img9" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/telaganilem.jpeg" alt="img10" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
         </div>
       </section>
 
@@ -93,7 +96,7 @@ export default function Home() {
           Anda bisa menjelajahi hutan dan pegunungan yang menyegarkan jiwa, menyusuri pesisir yang mempesona dengan panorama matahari terbenam yang dramatis, hingga merasakan kehidupan kota yang dinamis penuh hiburan dan kuliner modern.
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {["Petualangan", "Pesisir dan Pantai", "Bukit dan Pegunungan", "Perkotaan", "Belanja", "Seni dan Budaya", "Pedesaan"].map((item, i) => (
             <div key={i} className="bg-white rounded-lg p-4 shadow-md transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#008275] hover:to-[#ffffff]">
               <p className="text-[#2d2d2d] font-semibold">{item}</p>
@@ -103,7 +106,7 @@ export default function Home() {
       </section>
 
       <footer className="bg-[#008275bb] text-white px-6 py-10 mt-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 items-start">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 items-start">
           {/* Kiri: Logo dan Deskripsi */}
           <div className="flex flex-col items-start">
             <img src="/tic.png" alt="logo" className="w-32 mb-4" />
