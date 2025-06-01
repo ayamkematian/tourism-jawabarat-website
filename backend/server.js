@@ -109,6 +109,56 @@ app.post("/api/login", (req, res) => {
   });
 });
 
+// Endpoint untuk login pengelola
+app.post("/api/login-pengelola", (req, res) => {
+  const { email, password } = req.body;
+
+  console.log("Request received for pengelola login:", { email, password });
+
+  // Validasi input
+  if (!email || !password) {
+    console.log("Validation failed: Email atau password kosong.");
+    return res.status(400).json({ message: "Email dan password wajib diisi." });
+  }
+
+  // Query untuk mencari pengelola berdasarkan email
+  const query = "SELECT * FROM login_pengelola WHERE Email = ?";
+  db.query(query, [email], (err, results) => {
+    if (err) {
+      console.error("Error querying database for pengelola:", err);
+      return res.status(500).json({ message: "Terjadi kesalahan pada server." });
+    }
+
+    console.log("Query results for pengelola:", results);
+
+    if (results.length === 0) {
+      console.log("Pengelola tidak ditemukan.");
+      return res.status(404).json({ message: "Pengelola tidak ditemukan." });
+    }
+
+    const pengelola = results[0];
+
+    // Verifikasi password
+    bcrypt.compare(password, pengelola.password, (err, isMatch) => {
+      if (err) {
+        console.error("Error comparing passwords for pengelola:", err);
+        return res.status(500).json({ message: "Terjadi kesalahan pada server." });
+      }
+
+      if (!isMatch) {
+        console.log("Password salah untuk pengelola.");
+        return res.status(401).json({ message: "Password salah." });
+      }
+
+      // Login berhasil
+      console.log("Login berhasil untuk pengelola:", { id: pengelola.ID, email: pengelola.Email });
+      res.status(200).json({ message: "Login berhasil.", pengelola: { id: pengelola.ID, email: pengelola.Email } });
+    });
+  });
+});
+
+
+
 // Jalankan server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

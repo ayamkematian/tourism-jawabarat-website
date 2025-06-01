@@ -41,15 +41,15 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
       const database = getDatabase(firebaseApp);
       const rootReference = ref(database);
-      const snapshot = await get(child(rootReference, 'Sensor/BandungA1'));
+      const snapshot = await get(child(rootReference, 'Sensor/BandungB1'));
       if (snapshot.exists()) {
         const data = snapshot.val();
-        setHumidity(data.humidity);
-        setTemperature(data.temperature);
-        setRainStatus(data.rain_status); // ini string, bukan angka
+        setHumidity(data.Humidity);
+        setTemperature(data.Temperature);
+        setRainStatus(data.Rain_Status); // ini string, bukan angka
         console.log("Firebase data:", data);
       } else {
-        console.warn("No data found at Sensor/BandungA1");
+        console.warn("No data found at Sensor/BandungB1");
       }
     } catch (error) {
       console.error("Firebase DB Error:", error);
@@ -262,7 +262,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
                   </svg>
                   Hujan
                 </span>
-                <span>{rainStatus === "hujan" ? "Ya" : "Tidak"}</span>
+                <span>{rainStatus === "Hujan" ? "Ya" : "Tidak"}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div className="bg-[#008275] h-2 rounded-full" style={{ width: `${rainPercent}%` }}></div>
