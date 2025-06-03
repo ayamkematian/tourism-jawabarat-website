@@ -110,10 +110,10 @@ app.post("/api/login", (req, res) => {
 });
 
 // Endpoint untuk login pengelola
-app.post("/api/login-pengelola", (req, res) => {
+app.post("/api/login/pengelola", (req, res) => {
   const { email, password } = req.body;
 
-  console.log("Request received for pengelola login:", { email, password });
+  console.log("Request received:", { email, password }); // Log input dari frontend
 
   // Validasi input
   if (!email || !password) {
@@ -122,17 +122,16 @@ app.post("/api/login-pengelola", (req, res) => {
   }
 
   // Query untuk mencari pengelola berdasarkan email
-  const query = "SELECT * FROM login_pengelola WHERE Email = ?";
+  const query = "SELECT * FROM loginpengelola WHERE email = ?";
   db.query(query, [email], (err, results) => {
     if (err) {
-      console.error("Error querying database for pengelola:", err);
+      console.error("Error querying database:", err);
       return res.status(500).json({ message: "Terjadi kesalahan pada server." });
     }
 
-    console.log("Query results for pengelola:", results);
+    console.log("Query results:", results); // Log hasil query
 
     if (results.length === 0) {
-      console.log("Pengelola tidak ditemukan.");
       return res.status(404).json({ message: "Pengelola tidak ditemukan." });
     }
 
@@ -141,18 +140,21 @@ app.post("/api/login-pengelola", (req, res) => {
     // Verifikasi password
     bcrypt.compare(password, pengelola.password, (err, isMatch) => {
       if (err) {
-        console.error("Error comparing passwords for pengelola:", err);
+        console.error("Error comparing passwords:", err);
+        if (pengelola.password.length < 20) {
+          return res.status(500).json({ message: "Password di database belum di-hash bcrypt. Silakan hash terlebih dahulu." });
+        }
         return res.status(500).json({ message: "Terjadi kesalahan pada server." });
       }
 
       if (!isMatch) {
-        console.log("Password salah untuk pengelola.");
+        console.log("Password salah.");
         return res.status(401).json({ message: "Password salah." });
       }
 
       // Login berhasil
-      console.log("Login berhasil untuk pengelola:", { id: pengelola.ID, email: pengelola.Email });
-      res.status(200).json({ message: "Login berhasil.", pengelola: { id: pengelola.ID, email: pengelola.Email } });
+      console.log("Login berhasil:", { id: pengelola.id, email: pengelola.email });
+      res.status(200).json({ message: "Login berhasil.", pengelola: { id: pengelola.id, email: pengelola.email } });
     });
   });
 });

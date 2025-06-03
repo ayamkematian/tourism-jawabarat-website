@@ -70,16 +70,16 @@ export default function Home() {
 
         {/* Gallery - Kolase Gambar */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-10">
-          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/gunungpadang.jpeg" alt="img5" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/gunungpapandayan.jpeg" alt="img6" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/sangyang.jpeg" alt="img7" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/sayangheulang.jpeg" alt="img8" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/tamansafari.jpeg" alt="img9" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/telaganilem.jpeg" alt="img10" className="rounded-lg object-cover w-full h-full transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={400} />
+          <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={700} />
+          <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={700} height={800} />
+          <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/gunungpadang.jpeg" alt="img5" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/gunungpapandayan.jpeg" alt="img6" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/sangyang.jpeg" alt="img7" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/sayangheulang.jpeg" alt="img8" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/tamansafari.jpeg" alt="img9" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+          <Image src="/telaganilem.jpeg" alt="img10" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
         </div>
       </section>
 
