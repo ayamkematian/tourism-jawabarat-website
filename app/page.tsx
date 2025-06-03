@@ -70,7 +70,7 @@ export default function Home() {
 
         {/* Gallery - Kolase Gambar */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-10">
-          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={400} />
+          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={900} />
           <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={700} />
           <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={700} height={800} />
           <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />

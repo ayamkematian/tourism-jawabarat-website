@@ -159,7 +159,47 @@ app.post("/api/login/pengelola", (req, res) => {
   });
 });
 
+// Endpoint untuk daftar pengelola
+app.post("/api/daftar/pengelola", (req, res) => {
+  const { nama, email, password } = req.body;
 
+  // Validasi input
+  if (!nama || !email || !password) {
+    return res.status(400).json({ message: "Nama Lengkap, email, dan password wajib diisi." });
+  }
+
+  // Cek apakah email sudah terdaftar
+  const cekQuery = "SELECT * FROM loginpengelola WHERE email = ?";
+  db.query(cekQuery, [email], (err, results) => {
+    if (err) {
+      console.error("Error querying database:", err);
+      return res.status(500).json({ message: "Terjadi kesalahan pada server." });
+    }
+
+    if (results.length > 0) {
+      return res.status(409).json({ message: "Email sudah terdaftar." });
+    }
+
+    // Hash password
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+        console.error("Error hashing password:", err);
+        return res.status(500).json({ message: "Terjadi kesalahan pada server." });
+      }
+
+      // Simpan data ke database
+      const insertQuery = "INSERT INTO loginpengelola (email, password, namalengkap) VALUES (?, ?, ?)";
+      db.query(insertQuery, [email, hash, nama], (err, result) => {
+        if (err) {
+          console.error("Error inserting data:", err);
+          return res.status(500).json({ message: "Terjadi kesalahan pada server." });
+        }
+
+        res.status(201).json({ message: "Pendaftaran berhasil." });
+      });
+    });
+  });
+});
 
 // Jalankan server
 app.listen(port, () => {
