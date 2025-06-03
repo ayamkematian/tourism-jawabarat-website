@@ -23,7 +23,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
     const database = getDatabase(firebaseApp);
     const rootReference = ref(database)
-    const dbGet = await get(child(rootReference, 'raspberry_data/BandungA2/density'))
+    const dbGet = await get(child(rootReference, 'raspberry_data/BandungD1/Density'))
     const dbValue = dbGet.val()
     setDensity(dbValue); // setelah ambil dari Firebase
     console.log("Density:",dbValue);
@@ -58,23 +58,23 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
 
   
   const getKepadatanStatus = (value: number) => {
-    if (value > 80) return "Sangat Padat";
-    if (value > 50) return "Padat";
-    if (value > 20) return "Renggang";
+    if (value > 3) return "Sangat Padat";
+    if (value > 2) return "Padat";
+    if (value > 1) return "Renggang";
     return "Sepi";
   };
 
   const getDensityColor = (value: number) => {
-    if (value > 80) return "bg-red-500/20 text-[#952020]";      // Sangat Padat
-    if (value > 50) return "bg-orange-400/20 text-orange-700";  // Padat
-    if (value > 20) return "bg-yellow-200 text-yellow-800";     // Renggang
+    if (value > 3) return "bg-red-500/20 text-[#952020]";      // Sangat Padat
+    if (value > 2) return "bg-orange-400/20 text-orange-700";  // Padat
+    if (value > 1) return "bg-yellow-200 text-yellow-800";     // Renggang
     return "bg-green-200 text-green-800";                       // Sepi
   };
 
   const getDensityLabel = (value: number) => {
-    if (value > 80) return "Sangat Padat";
-    if (value > 50) return "Padat";
-    if (value > 20) return "Renggang";
+    if (value > 3) return "Sangat Padat";
+    if (value > 2) return "Padat";
+    if (value > 1) return "Renggang";
     return "Sepi";
   };
   useEffect(() => {
@@ -179,11 +179,11 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
               {
                 density === null
                   ? "Memuat..."
-                  : density > 80
+                  : density > 4
                     ? "Sangat Padat"
-                    : density > 50
+                    : density > 3
                       ? "Padat"
-                      : density > 20
+                      : density > 2
                         ? "Renggang"
                         : "Sepi"
               }

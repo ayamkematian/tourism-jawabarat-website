@@ -1,54 +1,57 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { Share2, Calendar } from "lucide-react"
 
 export default function Component() {
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-[#008275] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">W</span>
-              </div>
-              <div>
-                <div className="text-[#008275] font-semibold text-lg">Wisata</div>
-                <div className="text-[#008275] text-sm">Tourism Information Center</div>
-              </div>
-            </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-[#4a4a4a] hover:text-[#008275] transition-colors">
-                Profile
-              </a>
-              <a href="#" className="text-[#4a4a4a] hover:text-[#008275] transition-colors">
-                Berita
-              </a>
-              <a href="#" className="text-[#4a4a4a] hover:text-[#008275] transition-colors">
-                Destinasi Wisata
-              </a>
-              <a href="#" className="text-[#4a4a4a] hover:text-[#008275] transition-colors">
-                Galeri
-              </a>
-              <a href="#" className="text-[#4a4a4a] hover:text-[#008275] transition-colors">
-                Kontak
-              </a>
-              <Button className="bg-[#008275] hover:bg-[#02a191] text-white px-6">Masuk</Button>
-            </nav>
+      {/* Navigation Bar */}
+      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
+        <div className="flex items-center">
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
+          <div className="border-l-2 border-teal-600 pl-2">
+            <Link href="/" className="text-[#008275] font-semibold">Tourism Information Center</Link>
           </div>
         </div>
-      </header>
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/profile" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Profile
+          </Link>
+          <Link href="/berita" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Berita
+          </Link>
+          <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Destinasi Wisata
+          </Link>
+          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+            Masuk
+          </Link>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="relative h-80 bg-gradient-to-r from-black/70 to-black/50">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=320&width=1200')] bg-cover bg-center"></div>
+      <section className="relative h-[400px] bg-gradient-to-r from-black/70 to-black/50">
+        {/* Background Image with Opacity */}
+        <Image
+          src="/JawaBarat.png?height=1080&width=1920"
+          alt="Tourism Background"
+          fill
+          className="object-cover opacity-30"
+          priority
+        />
+
+        {/* Fallback/Overlay Background */}
+        <div className="absolute inset-0 bg-[url('/Jawa Barat.png?height=800&width=1200')] bg-cover bg-center"></div>
+
+        {/* Black Overlay for Readability */}
         <div className="absolute inset-0 bg-black/60"></div>
+
+        {/* Content Container */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <div className="text-white max-w-2xl">
+            {/* Title */}
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
               Festival Topeng Cirebon 2025
               <br />
@@ -56,12 +59,16 @@ export default function Component() {
               <br />
               hingga Pemerintah Pusat
             </h1>
+
+            {/* Date Info */}
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex items-center space-x-2 text-[#b4b4b4]">
                 <Calendar className="w-4 h-4" />
                 <span>Rabu, 30 April 2025</span>
               </div>
             </div>
+
+            {/* Share Button */}
             <Button className="bg-[#008275] hover:bg-[#02a191] text-white px-6 py-2">
               <Share2 className="w-4 h-4 mr-2" />
               Bagikan Postingan
@@ -69,6 +76,7 @@ export default function Component() {
           </div>
         </div>
       </section>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -78,7 +86,7 @@ export default function Component() {
             {/* Featured Image */}
             <div className="mb-6">
               <Image
-                src="/placeholder.svg?height=400&width=800"
+                src="/fotoberita1.webp?height=400&width=800"
                 alt="Festival Topeng Cirebon 2025"
                 width={800}
                 height={400}
