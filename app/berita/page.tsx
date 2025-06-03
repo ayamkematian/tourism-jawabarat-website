@@ -55,7 +55,7 @@ export default function Home() {
         {/* News List */}
         <div className="space-y-4">
           {/* News Item 1 */}
-          <Link href="#">
+          <Link href="/isiberita">
             <div className="flex gap-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
               <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0"></div>
               <div className="flex-1">

@@ -41,7 +41,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
       const database = getDatabase(firebaseApp);
       const rootReference = ref(database);
-      const snapshot = await get(child(rootReference, 'Sensor/BandungB1'));
+      const snapshot = await get(child(rootReference, 'Sensor/BandungA1'));
       if (snapshot.exists()) {
         const data = snapshot.val();
         setHumidity(data.Humidity);
@@ -49,7 +49,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
         setRainStatus(data.Rain_Status); // ini string, bukan angka
         console.log("Firebase data:", data);
       } else {
-        console.warn("No data found at Sensor/BandungB1");
+        console.warn("No data found at Sensor/BandungA1");
       }
     } catch (error) {
       console.error("Firebase DB Error:", error);
