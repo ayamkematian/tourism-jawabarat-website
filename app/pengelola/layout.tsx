@@ -26,35 +26,24 @@ export default function AdminLayout({
   const [showMenu, setShowMenu] = useState(false)
   const [openLogout, setOpenLogout] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [notifikasi, setNotifikasi] = useState<any[]>([])
-  const [showNotif, setShowNotif] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const [namaPengelola, setNamaPengelola] = useState<string>("")
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
-    const fetchAdminData = async () => {
-      const email = typeof window !== "undefined" ? localStorage.getItem("adminEmail") : null
-      if (email) {
-        const { data: adminData } = await supabase.from("admin").select("nama_admin").eq("email", email).single()
-        if (adminData && adminData.nama_admin) {
-          setAdminName(adminData.nama_admin)
-        }
-      }
+    setIsFetching(true)
+    const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null
+    if (!email) {
+      setIsFetching(false)
+      return
     }
-
-    const fetchNotifikasi = async () => {
-      const { data } = await supabase
-        .from("notifikasi")
-        .select("*")
-        .order("waktu", { ascending: false })
-        .limit(10)
-      setNotifikasi(data || [])
+    const fetchNama = async () => {
+      const { data, error } = await supabase.from("loginpengelola").select("namalengkap, id").eq("email", email).single()
+      if (data && data.namalengkap) setNamaPengelola(data.namalengkap)
+      setIsFetching(false)
     }
-    fetchAdminData()
-    fetchNotifikasi()
-    // Polling notifikasi setiap 30 detik
-    const interval = setInterval(fetchNotifikasi, 30000)
-    return () => clearInterval(interval)
+    fetchNama()
   }, [])
 
   const menuItems = [
@@ -70,24 +59,6 @@ export default function AdminLayout({
       label: "List Pengajuan",
       description: "Kelola pengajuan destinasi",
     },
-    {
-      href: "/admin/destinasi",
-      icon: MapPin,
-      label: "Daftar Destinasi",
-      description: "Kelola destinasi wisata",
-    },
-    {
-      href: "/admin/artikel/create",
-      icon: PlusCircle,
-      label: "Buat Artikel",
-      description: "Tulis artikel berita baru",
-    },
-    {
-      href: "/admin/artikel",
-      icon: List,
-      label: "List Artikel",
-      description: "Kelola artikel yang dipublish",
-    },
   ]
 
   return (
@@ -101,39 +72,18 @@ export default function AdminLayout({
           <span className="text-[#008275] font-medium">| Tourism Information Center</span>
         </div>
         <div className="flex items-center gap-4 relative">
-          <button className="relative" onClick={() => setShowNotif((v) => !v)}>
+          <button className="relative">
             <span className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">🔔</span>
-            {notifikasi.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">{notifikasi.length}</span>
-            )}
           </button>
-          {showNotif && (
-            <div className="absolute right-16 mt-2 w-80 bg-white border rounded shadow-lg z-30 max-h-96 overflow-y-auto">
-              <div className="p-3 border-b font-semibold text-[#008275]">Notifikasi Admin</div>
-              {notifikasi.length === 0 ? (
-                <div className="p-4 text-gray-500 text-sm">Belum ada notifikasi.</div>
-              ) : (
-                <ul>
-                  {notifikasi.map((notif) => (
-                    <li key={notif.id} className="px-4 py-2 border-b last:border-b-0 text-sm hover:bg-gray-50">
-                      <div className="font-medium">{notif.aksi}</div>
-                      <div className="text-gray-700">{notif.target}</div>
-                      <div className="text-gray-400 text-xs">{new Date(notif.waktu).toLocaleString()}</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
           <div className="relative">
             <button
               className="flex items-center gap-2 focus:outline-none"
               onClick={() => setShowMenu((v) => !v)}
-              title="Menu Admin"
+              title="Menu Pengelola"
               type="button"
             >
-              <Image src="/user.png" alt="Admin Image" width={40} height={40} />
-              <span>{adminName || "Admin"}</span>
+              <Image src="/user.png" alt="Pengelola Image" width={40} height={40} />
+              <span>{namaPengelola || "Pengelola"}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${showMenu ? "rotate-180" : ""}`} />
             </button>
             {showMenu && (
@@ -157,30 +107,17 @@ export default function AdminLayout({
         {/* Sidebar */}
         <aside className="w-64 bg-white shadow-md min-h-[calc(100vh-88px)] sticky top-[88px]">
           <nav className="p-4">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Menu Admin</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Menu Pengelola</h2>
             <ul className="space-y-2">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                const isActive = pathname === item.href
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                        isActive ? "bg-[#008275] text-white" : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <div>
-                        <div className="font-medium">{item.label}</div>
-                        <div className={`text-xs ${isActive ? "text-gray-200" : "text-gray-500"}`}>
-                          {item.description}
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                )
-              })}
+              <li>
+                <Link href="/pengelola/dashboard" className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${pathname === "/pengelola/dashboard" ? "bg-[#008275] text-white" : "text-gray-700 hover:bg-gray-100"}`}>
+                  <LayoutDashboard className="w-5 h-5" />
+                  <div>
+                    <div className="font-medium">Dashboard</div>
+                    <div className={`text-xs ${pathname === "/pengelola/dashboard" ? "text-gray-200" : "text-gray-500"}`}>List & kelola destinasi Anda</div>
+                  </div>
+                </Link>
+              </li>
             </ul>
           </nav>
         </aside>
@@ -206,8 +143,8 @@ export default function AdminLayout({
                 setOpenLogout(false)
                 setIsLoggingOut(true)
                 setTimeout(() => {
-                  localStorage.removeItem("adminEmail")
-                  router.push("/login")
+                  localStorage.removeItem("pengelolaEmail")
+                  router.push("/login/pengelola")
                 }, 600)
               }}
               className="bg-red-600 hover:bg-red-700 text-white"

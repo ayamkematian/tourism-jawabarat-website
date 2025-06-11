@@ -33,7 +33,7 @@ export default function Login() {
       }
       alert("Login berhasil!");
       localStorage.setItem("adminEmail", email);
-      router.push("/admin");
+      router.push("/admin/dashboard");
     } catch (error) {
       setErrorMessage("Terjadi kesalahan pada server.");
     }
