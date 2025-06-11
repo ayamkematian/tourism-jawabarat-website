@@ -83,10 +83,6 @@ export default function CreateArtikelPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/artikel">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Kembali
-          </Button>
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Buat Artikel Baru</h1>
