@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react";
 import { Search, ChevronRight } from "lucide-react"
+import { supabase } from "@/lib/supabaseClient";
 
 const featuredImages = [
   "/gunungpadang.jpeg",
@@ -15,6 +16,8 @@ export default function Home() {
   const [destinasiList, setDestinasiList] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const DESTINASI_PER_PAGE = 9;
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,15 +27,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Ambil daftar destinasi dari backend
+    // Ambil daftar destinasi dari Supabase
     const fetchDestinasiList = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/destinasi");
-        if (!response.ok) {
-          throw new Error("Gagal memuat daftar destinasi");
-        }
-        const data = await response.json();
-        setDestinasiList(data);
+        const { data, error } = await supabase.from("destinasi").select("*");
+        if (error) throw new Error(error.message);
+        setDestinasiList(data || []);
       } catch (err: any) {
         setError(err.message);
       }
@@ -40,6 +40,10 @@ export default function Home() {
 
     fetchDestinasiList();
   }, []);
+
+  // Pagination logic
+  const totalPages = Math.ceil(destinasiList.length / DESTINASI_PER_PAGE);
+  const paginatedDestinasi = destinasiList.slice((currentPage - 1) * DESTINASI_PER_PAGE, currentPage * DESTINASI_PER_PAGE);
 
   if (error) {
     return <div className="container mx-auto px-4 py-6">Error: {error}</div>;
@@ -133,7 +137,7 @@ export default function Home() {
 
       {/* Destination Grid */}
       <div className="container mx-auto px-4 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {destinasiList.map((destinasi) => (
+      {paginatedDestinasi.map((destinasi) => (
         <Link
           key={destinasi.id}
           href={`/destinasi/${destinasi.slug}`}
@@ -154,15 +158,31 @@ export default function Home() {
 
       {/* Pagination */}
       <div className="container mx-auto px-4 pb-8 flex justify-between items-center mt-2">
-        <button className="bg-[#008275] text-white px-4 py-2 rounded-md flex items-center gap-2">
-          Next Page
-          <ChevronRight className="w-4 h-4" />
+        <button
+          className="bg-[#008275] text-white px-4 py-2 rounded-md flex items-center gap-2 disabled:opacity-50"
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+        >
+          Previous Page
         </button>
         <div className="flex items-center gap-2">
           <span>Page</span>
-          <input type="text" value="1" className="border border-gray-300 rounded w-12 px-2 py-1 text-center" readOnly />
-          <span>of 100</span>
+          <input
+            type="text"
+            value={currentPage}
+            className="border border-gray-300 rounded w-12 px-2 py-1 text-center"
+            readOnly
+          />
+          <span>of {totalPages}</span>
         </div>
+        <button
+          className="bg-[#008275] text-white px-4 py-2 rounded-md flex items-center gap-2 disabled:opacity-50"
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages || totalPages === 0}
+        >
+          Next Page
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
     </main>
   );

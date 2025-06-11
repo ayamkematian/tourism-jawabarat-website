@@ -1,82 +1,81 @@
 "use client"
 import Image from "next/image"
-import { useRef,useEffect, useState } from "react"
-import { useRouter } from "next/navigation";
+import { useRef, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import {getDatabase, ref, child, get} from "firebase/database"
+import { getDatabase, ref, child, get } from "firebase/database"
 import firebaseApp from "@/backend/firebase-sdk"
+import { supabase } from "@/lib/supabaseClient"
 
 export default function DestinasiPage({ params }: { params: { nama: string } }) {
-  const [destinasi, setDestinasi] = useState<any>(null);
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const snapShot = useRef (null);
-  const [density, setDensity] = useState<number | null>(null);
-  const [rainStatus, setRainStatus] = useState<string | null>(null);
-  const [humidity, setHumidity] = useState<number | null>(null);
-  const [temperature, setTemperature] = useState<number | null>(null);
-  const rainPercent = rainStatus === "hujan" ? 100 : 0;
+  const [destinasi, setDestinasi] = useState<any>(null)
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true)
+  const snapShot = useRef(null)
+  const [density, setDensity] = useState<number | null>(null)
+  const [rainStatus, setRainStatus] = useState<string | null>(null)
+  const [humidity, setHumidity] = useState<number | null>(null)
+  const [temperature, setTemperature] = useState<number | null>(null)
+  const rainPercent = rainStatus === "hujan" ? 100 : 0
 
   // Ambil data kepadatan dari Firebase
   const getValue = async () => {
     try {
-    const database = getDatabase(firebaseApp);
-    const rootReference = ref(database)
-    const dbGet = await get(child(rootReference, 'raspberry_data/BandungD1/Density'))
-    const dbValue = dbGet.val()
-    setDensity(dbValue); // setelah ambil dari Firebase
-    console.log("Density:",dbValue);
-  } catch (error) {
-    console.error("Firebase DB Error:", error);
+      const database = getDatabase(firebaseApp)
+      const rootReference = ref(database)
+      const dbGet = await get(child(rootReference, "raspberry_data/BandungD1/Density"))
+      const dbValue = dbGet.val()
+      setDensity(dbValue) // setelah ambil dari Firebase
+      console.log("Density:", dbValue)
+    } catch (error) {
+      console.error("Firebase DB Error:", error)
+    }
   }
-};
 
   // Ambil data cuaca berdasarkan Firebase
   useEffect(() => {
-    getWeatherValue();
-  }
-  , []);
+    getWeatherValue()
+  }, [])
   const getWeatherValue = async () => {
     try {
-      const database = getDatabase(firebaseApp);
-      const rootReference = ref(database);
-      const snapshot = await get(child(rootReference, 'Sensor/BandungA1'));
+      const database = getDatabase(firebaseApp)
+      const rootReference = ref(database)
+      const snapshot = await get(child(rootReference, "Sensor/BandungA1"))
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setHumidity(data.Humidity);
-        setTemperature(data.Temperature);
-        setRainStatus(data.Rain_Status); // ini string, bukan angka
-        console.log("Firebase data:", data);
+        const data = snapshot.val()
+        setHumidity(data.Humidity)
+        setTemperature(data.Temperature)
+        setRainStatus(data.Rain_Status) // ini string, bukan angka
+        console.log("Firebase data:", data)
       } else {
-        console.warn("No data found at Sensor/BandungA1");
+        console.warn("No data found at Sensor/BandungA1")
       }
     } catch (error) {
-      console.error("Firebase DB Error:", error);
+      console.error("Firebase DB Error:", error)
     }
-  };
+  }
 
-  
   const getKepadatanStatus = (value: number) => {
-    if (value > 3) return "Sangat Padat";
-    if (value > 2) return "Padat";
-    if (value > 1) return "Renggang";
-    return "Sepi";
-  };
+    if (value > 3) return "Sangat Padat"
+    if (value > 2) return "Padat"
+    if (value > 1) return "Renggang"
+    return "Sepi"
+  }
 
   const getDensityColor = (value: number) => {
-    if (value > 3) return "bg-red-500/20 text-[#952020]";      // Sangat Padat
-    if (value > 2) return "bg-orange-400/20 text-orange-700";  // Padat
-    if (value > 1) return "bg-yellow-200 text-yellow-800";     // Renggang
-    return "bg-green-200 text-green-800";                       // Sepi
-  };
+    if (value > 3) return "bg-red-500/20 text-[#952020]" // Sangat Padat
+    if (value > 2) return "bg-orange-400/20 text-orange-700" // Padat
+    if (value > 1) return "bg-yellow-200 text-yellow-800" // Renggang
+    return "bg-green-200 text-green-800" // Sepi
+  }
 
   const getDensityLabel = (value: number) => {
-    if (value > 3) return "Sangat Padat";
-    if (value > 2) return "Padat";
-    if (value > 1) return "Renggang";
-    return "Sepi";
-  };
+    if (value > 3) return "Sangat Padat"
+    if (value > 2) return "Padat"
+    if (value > 1) return "Renggang"
+    return "Sepi"
+  }
   useEffect(() => {
     getValue()
   }, [])
@@ -84,49 +83,50 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
   useEffect(() => {
     const getDensityValue = async () => {
       try {
-        const database = getDatabase(firebaseApp);
-        const rootReference = ref(database);
-        const snapshot = await get(child(rootReference, 'raspberry_data/BandungA2/density'));
-        
+        const database = getDatabase(firebaseApp)
+        const rootReference = ref(database)
+        const snapshot = await get(child(rootReference, "raspberry_data/BandungD1/Density"))
+
         if (snapshot.exists()) {
-          const dbValue = snapshot.val();
-          console.log("Density:", dbValue);
+          const dbValue = snapshot.val()
+          console.log("Density:", dbValue)
           // Kamu bisa set state di sini kalau perlu
         } else {
-          console.warn("No data found at raspberry_data/BandungA2/density");
+          console.warn("No data found at raspberry_data/BandungD1/Density")
         }
       } catch (err) {
-        console.error("Firebase DB Error:", err);
+        console.error("Firebase DB Error:", err)
       }
-    };
-  
-    getDensityValue();
-  }, []);
-  
+    }
+
+    getDensityValue()
+  }, [])
+
   useEffect(() => {
-    // Ambil data destinasi dari backend
+    // Ambil data destinasi dari Supabase
     const fetchDestinasi = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/destinasi/${params.nama}`);
-        if (!response.ok) {
-          throw new Error("Destinasi tidak ditemukan");
-        }
-        const data = await response.json();
-        setDestinasi(data);
+        const { data, error } = await supabase
+          .from("destinasi")
+          .select("*")
+          .eq("slug", params.nama)
+          .single()
+        if (error || !data) throw new Error("Destinasi tidak ditemukan")
+        setDestinasi(data)
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message)
       }
-    };
+    }
 
-    fetchDestinasi();
-  }, [params.nama]);
+    fetchDestinasi()
+  }, [params.nama])
 
   if (error) {
-    return <div className="container mx-auto px-4 py-6">Error: {error}</div>;
+    return <div className="container mx-auto px-4 py-6">Error: {error}</div>
   }
 
   if (!destinasi) {
-    return <div className="container mx-auto px-4 py-6">Loading...</div>;
+    return <div className="container mx-auto px-4 py-6">Loading...</div>
   }
 
   return (
@@ -136,7 +136,9 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
         <div className="flex items-center">
           <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
           <div className="border-l-2 border-teal-600 pl-2">
-            <Link href="/" className="text-[#008275] font-semibold">Tourism Information Center</Link>
+            <Link href="/" className="text-[#008275] font-semibold">
+              Tourism Information Center
+            </Link>
           </div>
         </div>
         <div className="hidden md:flex items-center space-x-6">
@@ -149,7 +151,10 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
           <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
             Destinasi Wisata
           </Link>
-          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+          <Link
+            href="/login"
+            className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold"
+          >
             Masuk
           </Link>
         </div>
@@ -159,12 +164,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
       {/* Image Slider */}
       <div className="relative mb-8">
         <div className="overflow-hidden rounded-lg h-[400px] relative">
-          <Image
-            src={destinasi.gambar || "/placeholder.svg"}
-            alt={destinasi.nama}
-            fill
-            className="object-cover"
-          />
+          <Image src={destinasi.gambar || "/placeholder.svg"} alt={destinasi.nama} fill className="object-cover" />
         </div>
       </div>
 
@@ -172,25 +172,24 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Map */}
         <div className="bg-[#fafafa] rounded-lg p-4 h-[300px] relative">
-        <div className={`absolute inset-0 rounded-lg flex items-center justify-center transition-all duration-300 ${ 
-          density !== null ? getDensityColor(density) : "bg-gray-200 text-gray-500"
-          }`}>
+          <div
+            className={`absolute inset-0 rounded-lg flex items-center justify-center transition-all duration-300 ${
+              density !== null ? getDensityColor(density) : "bg-gray-200 text-gray-500"
+            }`}
+          >
             <span className="font-bold text-xl">
-              {
-                density === null
-                  ? "Memuat..."
-                  : density > 4
-                    ? "Sangat Padat"
-                    : density > 3
-                      ? "Padat"
-                      : density > 2
-                        ? "Renggang"
-                        : "Sepi"
-              }
+              {density === null
+                ? "Memuat..."
+                : density > 4
+                  ? "Sangat Padat"
+                  : density > 3
+                    ? "Padat"
+                    : density > 2
+                      ? "Senggang"
+                      : "Sepi"}
             </span>
           </div>
         </div>
-
 
         {/* Weather Info */}
         <div className="border border-gray-200 rounded-lg p-4">
@@ -198,7 +197,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
           <div className="flex flex-col items-center">
             <p className="text-sm text-gray-500">Terasa spt</p>
             <div className="text-6xl font-bold flex items-start">
-            {temperature !== null ? Math.round(temperature) : "--"}
+              {temperature !== null ? Math.round(temperature) : "--"}
               <span className="text-2xl">°</span>
             </div>
 
@@ -235,10 +234,12 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
                 <span>{humidity !== null ? `${Math.round(humidity)}%` : "--"}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-[#008275] h-2 rounded-full" style={{ width: humidity !== null ? `${Math.round(humidity)}%` : "0%" }}></div>
+                <div
+                  className="bg-[#008275] h-2 rounded-full"
+                  style={{ width: humidity !== null ? `${Math.round(humidity)}%` : "0%" }}
+                ></div>
               </div>
             </div>
-            
 
             {/* Hujan */}
             <div className="w-full mt-4">
@@ -267,6 +268,159 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div className="bg-[#008275] h-2 rounded-full" style={{ width: `${rainPercent}%` }}></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Detailed Information Section */}
+      <div className="mt-8 space-y-6">
+        {/* Description - Full Width */}
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+          <h3 className="text-xl font-semibold mb-3 text-[#008275] flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            Deskripsi
+          </h3>
+          <div className="text-gray-700">
+            {destinasi.deskripsi || (
+              <p className="italic text-gray-500">Deskripsi belum tersedia untuk destinasi ini.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Address and Opening Hours/Ticket Price - Two Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Address */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-semibold mb-3 text-[#008275] flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              Alamat
+            </h3>
+            <div className="text-gray-700">
+              {destinasi.alamat || <p className="italic text-gray-500">Alamat belum tersedia untuk destinasi ini.</p>}
+            </div>
+            {destinasi.googleMapsUrl && (
+              <a
+                href={destinasi.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center mt-3 text-[#008275] hover:underline"
+              >
+                <span>Lihat di Google Maps</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-1"
+                >
+                  <path d="M7 7h10v10"></path>
+                  <path d="M7 17 17 7"></path>
+                </svg>
+              </a>
+            )}
+          </div>
+
+          {/* Opening Hours and Ticket Price */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold mb-3 text-[#008275] flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Jam Buka
+              </h3>
+              {destinasi.jambuka ? (
+                <div className="grid grid-cols-2 gap-2 text-gray-700">
+                  <div>Senin - Jumat:</div>
+                  <div>{destinasi.jambuka.weekday || "08:00 - 16:00"}</div>
+                  <div>Sabtu - Minggu:</div>
+                  <div>{destinasi.jambuka.weekend || "08:00 - 17:00"}</div>
+                  <div>Hari Libur:</div>
+                  <div>{destinasi.jambuka.holiday || "08:00 - 17:00"}</div>
+                </div>
+              ) : (
+                <p className="italic text-gray-500">Jam buka belum tersedia untuk destinasi ini.</p>
+              )}
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-3 text-[#008275] flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect width="20" height="12" x="2" y="6" rx="2"></rect>
+                  <circle cx="12" cy="12" r="2"></circle>
+                  <path d="M6 12h.01M18 12h.01"></path>
+                </svg>
+                Harga Tiket
+              </h3>
+              {destinasi.hargatiket ? (
+                <div className="grid grid-cols-2 gap-2 text-gray-700">
+                  <div>Dewasa:</div>
+                  <div>Rp {destinasi.hargatiket.dewasa?.toLocaleString("id-ID") || "25.000"}</div>
+                  <div>Anak-anak:</div>
+                  <div>Rp {destinasi.hargatiket.anak?.toLocaleString("id-ID") || "15.000"}</div>
+                  {destinasi.hargatiket.mancanegara && (
+                    <>
+                      <div>Wisatawan Mancanegara:</div>
+                      <div>Rp {destinasi.hargatiket.mancanegara.toLocaleString("id-ID")}</div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p className="italic text-gray-500">Informasi harga tiket belum tersedia untuk destinasi ini.</p>
+              )}
             </div>
           </div>
         </div>

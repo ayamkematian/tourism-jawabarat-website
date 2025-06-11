@@ -4,6 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import bcrypt from "bcryptjs";
 
 
 export default function Login() {
@@ -15,28 +17,25 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const response = await fetch("http://localhost:3001/api/login/pengelola", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Login berhasil!");
-        console.log("Pengelola data:", data.pengelola);
-        // Redirect ke halaman dashboard pengelola, ganti sesuai kebutuhan
-        router.push("/pengelola");
-      } else {
-        setErrorMessage(data.message || "Login gagal.");
+      const { data, error } = await supabase
+        .from("loginpengelola")
+        .select("*")
+        .eq("email", email)
+        .single();
+      if (error || !data) {
+        setErrorMessage("Pengelola tidak ditemukan.");
+        return;
       }
+      const isMatch = await bcrypt.compare(password, data.password);
+      if (!isMatch) {
+        setErrorMessage("Password salah.");
+        return;
+      }
+      alert("Login berhasil!");
+      localStorage.setItem("pengelolaEmail", email);
+      router.push("/pengelola");
     } catch (error) {
-      console.error("Error during login:", error);
       setErrorMessage("Terjadi kesalahan pada server.");
     }
   }

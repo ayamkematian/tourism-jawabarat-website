@@ -3,6 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
+import { supabase } from "@/lib/supabaseClient"
+import bcrypt from "bcryptjs"
 
 export default function DaftarPengelola() {
   const [showPassword, setShowPassword] = useState(false)
@@ -28,21 +30,29 @@ export default function DaftarPengelola() {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/daftar/pengelola", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nama, email, password }),
-      })
-      const data = await response.json()
-      if (response.ok) {
-        setSuccessMessage("Pendaftaran berhasil! Silakan login.")
-        setNama("")
-        setEmail("")
-        setPassword("")
-        setRepeatPassword("")
-      } else {
-        setErrorMessage(data.message || "Pendaftaran gagal.")
+      // Cek apakah email sudah terdaftar
+      const { data: existing } = await supabase
+        .from("loginpengelola")
+        .select("*")
+        .eq("email", email)
+        .single()
+      if (existing) {
+        setErrorMessage("Email sudah terdaftar.")
+        return
       }
+      const hash = await bcrypt.hash(password, 10)
+      const { error: insertError } = await supabase
+        .from("loginpengelola")
+        .insert([{ email, password: hash, namalengkap: nama }])
+      if (insertError) {
+        setErrorMessage("Terjadi kesalahan pada server.")
+        return
+      }
+      setSuccessMessage("Pendaftaran berhasil! Silakan login.")
+      setNama("")
+      setEmail("")
+      setPassword("")
+      setRepeatPassword("")
     } catch (error) {
       setErrorMessage("Terjadi kesalahan pada server.")
     }

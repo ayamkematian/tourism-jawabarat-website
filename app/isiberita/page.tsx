@@ -1,9 +1,36 @@
+"use client"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Share2, Calendar } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { supabase } from "@/lib/supabaseClient"
 
 export default function Component() {
+  const [artikel, setArtikel] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
+
+  useEffect(() => {
+    const fetchArtikel = async () => {
+      if (!id) return
+      setLoading(true)
+      const { data } = await supabase.from("artikel").select("*").eq("id", id).eq("status", "published").single()
+      setArtikel(data)
+      setLoading(false)
+    }
+    fetchArtikel()
+  }, [id])
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>
+  }
+  if (!artikel) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Artikel tidak ditemukan atau belum dipublikasikan.</div>
+  }
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
 
@@ -34,41 +61,29 @@ export default function Component() {
       {/* Hero Section */}
       <section className="relative h-[400px] bg-gradient-to-r from-black/70 to-black/50">
         {/* Background Image with Opacity */}
-        <Image
-          src="/JawaBarat.png?height=1080&width=1920"
-          alt="Tourism Background"
-          fill
-          className="object-cover opacity-30"
-          priority
-        />
-
-        {/* Fallback/Overlay Background */}
-        <div className="absolute inset-0 bg-[url('/Jawa Barat.png?height=800&width=1200')] bg-cover bg-center"></div>
-
-        {/* Black Overlay for Readability */}
+        {artikel.gambar ? (
+          <Image
+            src={artikel.gambar}
+            alt={artikel.judul}
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-200 opacity-30" />
+        )}
         <div className="absolute inset-0 bg-black/60"></div>
-
-        {/* Content Container */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <div className="text-white max-w-2xl">
-            {/* Title */}
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-              Festival Topeng Cirebon 2025
-              <br />
-              Banjir Apresiasi, dari Masyarakat
-              <br />
-              hingga Pemerintah Pusat
+              {artikel.judul}
             </h1>
-
-            {/* Date Info */}
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex items-center space-x-2 text-[#b4b4b4]">
                 <Calendar className="w-4 h-4" />
-                <span>Rabu, 30 April 2025</span>
+                <span>{new Date(artikel.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
               </div>
             </div>
-
-            {/* Share Button */}
             <Button className="bg-[#008275] hover:bg-[#02a191] text-white px-6 py-2">
               <Share2 className="w-4 h-4 mr-2" />
               Bagikan Postingan
@@ -77,83 +92,31 @@ export default function Component() {
         </div>
       </section>
 
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col xl:flex-row gap-8">
           {/* Article Content */}
           <div className="xl:w-2/3 flex-1">
             {/* Featured Image */}
-            <div className="mb-6">
-              <Image
-                src="/fotoberita1.webp?height=400&width=800"
-                alt="Festival Topeng Cirebon 2025"
-                width={800}
-                height={400}
-                className="w-full h-auto rounded-lg"
-              />
-            </div>
+            {artikel.gambar && (
+              <div className="mb-6">
+                <Image
+                  src={artikel.gambar}
+                  alt={artikel.judul}
+                  width={800}
+                  height={400}
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
+            )}
 
             {/* Article Text */}
             <div className="prose prose-gray max-w-none">
-              <p className="text-[#363636] leading-relaxed mb-4">
-                CIREBON - Pemerintah Daerah Kota Cirebon melalui Dinas Kebudayaan dan Pariwisata sukses menyelenggarakan
-                Festival Topeng Cirebon 2025. Kegiatan ini diadakan di Balai Kota Cirebon, Sabtu 26 April 2025 dan
-                mendapatkan sambutan hangat dari masyarakat.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                Sebanyak enam maestro topeng yakni Nani Kasmini, Nuranani, Inu Kartapati, Roedah, Aeril Rasinah, dan
-                Waryo Sela memberikan penampilan memukau di atas panggung. Hal tersebut tentunya diapresiasi oleh banyak
-                pihak, termasuk Wali Kota Cirebon Effendi Edo yang sangat bangga dengan adanya festival budaya ini.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                "Dari penampilan para maestro, kita menyaksikan jagatan yang menari, hikmah yang bergerak, dan
-                nilai-nilai luhur yang menjelmia dalam rupa wajah-wajah kayu yang penuh makna," kata Wali Kota Cirebon.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                "Karya dan pengetahuan para maestro ini tidak hanya memperkaya seni budaya, tetapi juga menjaga nyala
-                api budaya yang nyaris padam," tuturnya.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                Selain pertunjukan kesenian, kegiatan ini juga diisi dengan seminar dan workshop yang memberikan ruang
-                bagi generasi muda untuk memahami seni topeng. Kepala Dinas Kebudayaan dan Pariwisata Kota Cirebon Agus
-                Sukmanjaya mengatakan antusiasme masyarakat begitu tinggi dan hal tersebut menjadi kabar baik dalam
-                upaya pelestarian seni budaya daerah.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                "Ada workshop topeng, kemudian seminar, alhamdulillah antusiasme generasi muda cukup tinggi. Ini adalah
-                langkah awal untuk menjadikan Festival Topeng Cirebon ke level nasional, bahkan internasional," ucapnya.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                Apresiasi juga diberikan oleh Direktur Jenderal Pelindungan Kebudayaan dan Tradisi Kementerian
-                Kebudayaan RI Restu Gunawan. Dirinya juga memuja keberadaan Museum Topeng yang berlokasi di kawasan
-                Gedung Balai Kota Cirebon.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                "Visi kebudayaan dari Kota Cirebon ini terlihat sangat nyata. Festival Topeng Cirebon 2025 telah
-                mengukir sejarah baru yang akan dikenang dan dilestarikan kepada generasi mendatang," ujarnya.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                "Melalui berbagai seminar, workshop, dan dialog, festival ini menajak publik untuk memahami lebih dalam
-                nilai-nilai yang terkandung dalam seni topeng, serta peranannya dalam kehidupan sehari-hari,"
-                pungkasnya.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed mb-4">
-                Dalam kesempatan tersebut, dirangkaikan juga dengan penyerahan sertifikat resmi dari Kementerian
-                Kebudayaan Republik Indonesia kepada Museum Topeng Cirebon.
-              </p>
-
-              <p className="text-[#363636] leading-relaxed">
-                <strong>Penulis:</strong> Karto sudrotejo
+              {artikel.konten?.split("\n").map((p: string, i: number) => (
+                <p key={i} className="text-[#363636] leading-relaxed mb-4">{p}</p>
+              ))}
+              <p className="text-[#363636] leading-relaxed mt-8">
+                <strong>Penulis:</strong> {artikel.author_name || "-"}
               </p>
             </div>
           </div>

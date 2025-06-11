@@ -2,8 +2,27 @@
 import Image from "next/image"
 import Link from "next/link"
 import { CalendarIcon, ChevronRight } from "lucide-react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabaseClient"
 
 export default function Home() {
+  const [berita, setBerita] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchBerita = async () => {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from("artikel")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+      setBerita(data || [])
+      setLoading(false)
+    }
+    fetchBerita()
+  }, [])
+
   return (
     <main className="min-h-screen bg-white">
       {/* Navigation Bar */}
@@ -54,108 +73,33 @@ export default function Home() {
       <section className="container mx-auto px-4 py-8">
         {/* News List */}
         <div className="space-y-4">
-          {/* News Item 1 */}
-          <Link href="/isiberita">
-            <div className="flex gap-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
-              <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0"></div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">
-                  Festival Topeng Cirebon 2025 Banjir Apresiasi, dari Masyarakat hingga Pemerintah Pusat
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  CIREBON - Pemerintah Daerah Kota Cirebon melalui Dinas Kebudayaan dan Pariwisata sukses menyelenggarakan
-                  Festival Topeng Cirebon 2025. Kegiatan ini diadakan di Kota Cirebon, Sabtu 26 April 2025 dan...
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mt-2">
-                  <CalendarIcon className="w-4 h-4 mr-1" />
-                  <span>Rabu, 30 April 2025</span>
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">Loading...</div>
+          ) : berita.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">Belum ada berita yang dipublikasikan.</div>
+          ) : (
+            berita.map((item) => (
+              <Link key={item.id} href={"/isiberita?id=" + item.id}>
+                <div className="flex gap-4 border-t pt-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
+                  <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
+                    {item.gambar && (
+                      <Image src={item.gambar} alt={item.judul} width={128} height={96} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{item.judul}</h3>
+                    {item.excerpt && (
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.excerpt}</p>
+                    )}
+                    <div className="flex items-center text-gray-500 text-sm mt-2">
+                      <CalendarIcon className="w-4 h-4 mr-1" />
+                      <span>{new Date(item.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* News Item 2 */}
-          <Link href="#"> 
-            <div className="flex gap-4 border-t pt-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
-              <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0"></div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">
-                  Rangkaian Peringatan 70 Tahun KAA, Kadisparbud Jabar Hadiri Seminar Hari Warisan Dunia
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  BANDUNG - Kepala Dinas Pariwisata dan Kebudayaan Provinsi Jawa Barat Bendra Sofyan menghadiri Seminar
-                  Hari Warisan Dunia dalam rangka Peringatan 70 Tahun Konferensi Asia Afrika. Kegiatan tersebut...
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mt-2">
-                  <CalendarIcon className="w-4 h-4 mr-1" />
-                  <span>Rabu, 30 April 2025</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* News Item 3 */}
-          <Link href="#">
-            <div className="flex gap-4 border-t pt-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
-              <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0"></div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">
-                  Kemenkebud RI dan PT Pos Indonesia Luncurkan Prangko Spesial Peringati 70 Tahun Konferensi Asia Afrika
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  BANDUNG - Kementerian Kebudayaan RI bersama PT Pos Indonesia menggelar Pameran Filateli dalam rangka
-                  Peringatan 70 Tahun Konferensi Asia Afrika. Kegiatan dibuka secara langsung oleh...
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mt-2">
-                  <CalendarIcon className="w-4 h-4 mr-1" />
-                  <span>Rabu, 30 April 2025</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* News Item 4 */}
-          <Link href="#">
-            <div className="flex gap-4 border-t pt-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
-              <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0"></div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">
-                  Workshop Fotografi, Storytelling dan Sosialisasi Hak Kekayaan Intelektual (HKI) untuk Peserta Uniqlo
-                  Neighborhood Collaboration
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  BEKASI - Dinas Pariwisata dan Kebudayaan Provinsi Jawa Barat menggelar Workshop Fotografi dan
-                  Storytelling serta Sosialisasi Hak Kekayaan Intelektual (HKI) kepada 24 peserta ekonomi kreatif di
-                  wilayah Kota...
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mt-2">
-                  <CalendarIcon className="w-4 h-4 mr-1" />
-                  <span>Rabu, 30 April 2025</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* News Item 5 */}
-          <Link href="#">
-            <div className="flex gap-4 border-t pt-4 transition-colors duration-200 hover:bg-[#008275]/5 rounded-lg p-2">
-              <div className="w-32 h-24 bg-gray-200 rounded flex-shrink-0"></div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">
-                  Delegasi Uni Afrika Kunjungi Masjid Al Jabbar dan Galeri Rasulullah
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  BANDUNG - Sebanyak 17 Delegasi Uni Afrika (African Union) mengunjungi Masjid Raya Al Jabbar, Kota
-                  Bandung, Rabu 23 April 2025. Kunjungan tersebut masuk agenda perjalanan dalam rangka peringatan 70 tahun
-                  Konferensi...
-                </p>
-                <div className="flex items-center text-gray-500 text-sm mt-2">
-                  <CalendarIcon className="w-4 h-4 mr-1" />
-                  <span>Rabu, 30 April 2025</span>
-                </div>
-              </div>
-            </div>
-          </Link>
+              </Link>
+            ))
+          )}
         </div>
         
         {/* Pagination */}

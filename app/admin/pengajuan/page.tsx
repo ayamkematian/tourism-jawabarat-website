@@ -1,0 +1,248 @@
+"use client"
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabaseClient"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { ChevronDown, ChevronUp } from "lucide-react"
+
+export default function PengajuanPage() {
+  const [pengajuan, setPengajuan] = useState<any[]>([])
+  const [pengelolaList, setPengelolaList] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedDetail, setSelectedDetail] = useState<number | null>(null)
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false)
+  const [selectedAcceptId, setSelectedAcceptId] = useState<number | null>(null)
+  const [acceptLoading, setAcceptLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 10
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    setLoading(true)
+
+    const { data: pengajuanData } = await supabase
+      .from("daftar_destinasi")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    const { data: pengelolaData } = await supabase.from("loginpengelola").select("*")
+
+    setPengajuan(pengajuanData || [])
+    setPengelolaList(pengelolaData || [])
+    setLoading(false)
+  }
+
+  const handleAccept = async (id: number) => {
+    setAcceptLoading(true)
+
+    const pengajuanItem = pengajuan.find((item) => item.id === id)
+    if (pengajuanItem) {
+      // Update status di daftar_destinasi
+      await supabase
+        .from("daftar_destinasi")
+        .update({
+          status: "Disetujui",
+          is_validated: true,
+        })
+        .eq("id", id)
+
+      // Insert ke tabel destinasi
+      const destinasiData = {
+        nama: pengajuanItem.nama,
+        slug: pengajuanItem.slug,
+        gambar: pengajuanItem.gambar,
+        deskripsi: pengajuanItem.deskripsi,
+        lokasi: pengajuanItem.lokasi,
+        kategori: pengajuanItem.kategori,
+        alamat: pengajuanItem.alamat,
+        hargatiket: pengajuanItem.hargatiket,
+        jambuka: pengajuanItem.jambuka,
+      }
+
+      await supabase.from("destinasi").insert(destinasiData)
+    }
+
+    setAcceptLoading(false)
+    setAcceptDialogOpen(false)
+    setSelectedAcceptId(null)
+    fetchData()
+  }
+
+  const getPengelolaName = (pengelolaId: number) => {
+    const pengelola = pengelolaList.find((p) => p.id === pengelolaId)
+    return pengelola ? pengelola.namalengkap : `ID: ${pengelolaId}`
+  }
+
+  const totalPages = Math.ceil(pengajuan.length / ITEMS_PER_PAGE)
+  const paginatedData = pengajuan.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">List Pengajuan Destinasi</h1>
+        <p className="text-gray-600">Kelola pengajuan destinasi dan akomodasi wisata</p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Daftar Pengajuan ({pengajuan.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {paginatedData.map((item) => (
+              <div key={item.id} className="border rounded-lg">
+                <div
+                  className="p-4 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+                  onClick={() => setSelectedDetail(selectedDetail === item.id ? null : item.id)}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1">
+                    <div>
+                      <p className="text-sm text-gray-500">Kode</p>
+                      <p className="font-medium">{item.kode}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Pendaftar</p>
+                      <p className="font-medium">{getPengelolaName(item.pengelola_id)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Nama Tempat</p>
+                      <p className="font-medium">{item.nama}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Kategori</p>
+                      <p className="font-medium">{item.kategori}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">Status</p>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            item.status === "Disetujui"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </div>
+                      {selectedDetail === item.id ? <ChevronUp /> : <ChevronDown />}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedDetail === item.id && (
+                  <div className="border-t bg-gray-50 p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Alamat:</p>
+                        <p className="text-sm text-gray-600">{item.alamat}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Lokasi:</p>
+                        <p className="text-sm text-gray-600">{item.lokasi}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Harga Tiket:</p>
+                        <p className="text-sm text-gray-600">{item.hargatiket}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Jam Buka:</p>
+                        <p className="text-sm text-gray-600">{item.jambuka}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Deskripsi:</p>
+                      <p className="text-sm text-gray-600">{item.deskripsi}</p>
+                    </div>
+
+                    {item.status !== "Disetujui" && (
+                      <div className="pt-3 border-t">
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedAcceptId(item.id)
+                            setAcceptDialogOpen(true)
+                          }}
+                          className="bg-[#008275] hover:bg-[#00a38f]"
+                        >
+                          Setujui Pengajuan
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Accept Dialog */}
+      <AlertDialog open={acceptDialogOpen} onOpenChange={setAcceptDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Persetujuan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menyetujui pengajuan destinasi ini? Data akan divalidasi dan ditambahkan ke daftar
+              destinasi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={acceptLoading}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => selectedAcceptId && handleAccept(selectedAcceptId)}
+              className="bg-green-600 hover:bg-green-700"
+              disabled={acceptLoading}
+            >
+              {acceptLoading ? "Memproses..." : "Setujui"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
