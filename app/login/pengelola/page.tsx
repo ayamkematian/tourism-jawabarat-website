@@ -114,7 +114,7 @@ export default function Login() {
         <div className="mt-4">
         <Link
           href="/"
-          className="block text-center py-2 bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
+          className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
         >
           Kembali ke Menu Utama
         </Link>

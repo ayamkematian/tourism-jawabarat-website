@@ -44,7 +44,7 @@ export default function Home() {
           <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
             Destinasi Wisata
           </Link>
-          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-[#006e67] rounded-md font-semibold">
+          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 hover:bg-[#006e67] rounded-md font-semibold">
             Masuk
           </Link>
         </div>
