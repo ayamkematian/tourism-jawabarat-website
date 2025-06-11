@@ -42,6 +42,7 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen bg-[url('/JawaBarat.png?height=1080&width=1920')] bg-cover bg-center flex items-center justify-center p-4">
+      <head><link rel="icon" href="/tic.png" /></head>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md"></div>
       <div className="relative z-10">
         <div className="bg-[#008275]/90 text-white rounded-lg p-8 w-full max-w-md backdrop-blur-sm">

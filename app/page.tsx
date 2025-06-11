@@ -4,6 +4,7 @@ import Link from "next/link"
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-[#2d2d2d]">
+      <head><link rel="icon" href="/tic.png" /></head>
       {/* Navigation Bar */}
       <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
         <div className="flex items-center">

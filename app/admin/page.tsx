@@ -138,7 +138,7 @@ export default function AdminDashboard() {
 
   return (
     <div className={`min-h-screen bg-[#f9f9f9] text-[#2d2d2d] transition-opacity duration-500 ${isLoggingOut ? 'opacity-0' : 'opacity-100'}`}>
-
+      <head><link rel="icon" href="/tic.png" /></head>
       {/* Stats Section */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
         <div className="stat-box">

@@ -107,6 +107,7 @@ export default function ArtikelPage() {
 
   return (
     <div className="space-y-6">
+      <head><link rel="icon" href="/tic.png" /></head>
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Kelola Artikel</h1>

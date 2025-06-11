@@ -94,6 +94,7 @@ export default function AdminLayout({
     <div
       className={`min-h-screen bg-[#f9f9f9] transition-opacity duration-500 ${isLoggingOut ? "opacity-0" : "opacity-100"}`}
     >
+      <head><link rel="icon" href="/tic.png" /></head>
       {/* Header */}
       <header className="w-full bg-white py-4 px-6 flex items-center justify-between shadow-md sticky top-0 z-50">
         <div className="flex items-center gap-2">

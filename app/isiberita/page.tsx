@@ -33,7 +33,7 @@ export default function Component() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-
+      <head><link rel="icon" href="/tic.png" /></head>
       {/* Navigation Bar */}
       <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
         <div className="flex items-center">
