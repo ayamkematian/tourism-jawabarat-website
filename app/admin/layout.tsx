@@ -109,7 +109,17 @@ export default function AdminLayout({
           </button>
           {showNotif && (
             <div className="absolute right-16 mt-2 w-80 bg-white border rounded shadow-lg z-30 max-h-96 overflow-y-auto">
-              <div className="p-3 border-b font-semibold text-[#008275]">Notifikasi Admin</div>
+              <div className="p-3 border-b font-semibold text-[#008275] flex items-center justify-between">
+                <span>Notifikasi Admin</span>
+                <button
+                  className="text-gray-400 hover:text-gray-700 text-lg font-bold px-2 focus:outline-none"
+                  onClick={() => setShowNotif(false)}
+                  aria-label="Tutup Notifikasi"
+                  type="button"
+                >
+                  ✕
+                </button>
+              </div>
               {notifikasi.length === 0 ? (
                 <div className="p-4 text-gray-500 text-sm">Belum ada notifikasi.</div>
               ) : (
