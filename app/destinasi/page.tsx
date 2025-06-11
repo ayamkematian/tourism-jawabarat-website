@@ -18,6 +18,7 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const DESTINASI_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -41,9 +42,16 @@ export default function Home() {
     fetchDestinasiList();
   }, []);
 
+  const filteredDestinasi = destinasiList.filter((destinasi) =>
+    destinasi.nama.toLowerCase().includes(search.toLowerCase())
+  );
+
   // Pagination logic
-  const totalPages = Math.ceil(destinasiList.length / DESTINASI_PER_PAGE);
-  const paginatedDestinasi = destinasiList.slice((currentPage - 1) * DESTINASI_PER_PAGE, currentPage * DESTINASI_PER_PAGE);
+  const totalPages = Math.ceil(filteredDestinasi.length / DESTINASI_PER_PAGE);
+  const paginatedDestinasi = filteredDestinasi.slice(
+    (currentPage - 1) * DESTINASI_PER_PAGE,
+    currentPage * DESTINASI_PER_PAGE
+  );
 
   if (error) {
     return <div className="container mx-auto px-4 py-6">Error: {error}</div>;
@@ -114,6 +122,11 @@ export default function Home() {
           <input
             type="text"
             placeholder="Search..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1); // Reset ke halaman 1 saat search berubah
+            }}
             className="w-full border border-gray-300 rounded-full px-4 py-1 pr-10"
           />
           <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
@@ -138,23 +151,29 @@ export default function Home() {
 
       {/* Destination Grid */}
       <div className="container mx-auto px-4 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {paginatedDestinasi.map((destinasi) => (
-        <Link
-          key={destinasi.id}
-          href={`/destinasi/${destinasi.slug}`}
-          className="destination-card"
-        >
-          <Image
-            src={destinasi.gambar || "/placeholder.svg"}
-            alt={destinasi.nama}
-            width={300}
-            height={150}
-            className="w-full h-full object-cover"
-          />
-          <div className="label">{destinasi.nama}</div>
-          <div className="new-badge">New</div>
-        </Link>
-      ))}
+        {paginatedDestinasi.length === 0 ? (
+          <div className="col-span-full text-center text-gray-500 py-8">
+            Tidak ada destinasi ditemukan.
+          </div>
+        ) : (
+          paginatedDestinasi.map((destinasi) => (
+            <Link
+              key={destinasi.id}
+              href={`/destinasi/${destinasi.slug}`}
+              className="destination-card"
+            >
+              <Image
+                src={destinasi.gambar || "/placeholder.svg"}
+                alt={destinasi.nama}
+                width={300}
+                height={150}
+                className="w-full h-full object-cover"
+              />
+              <div className="label">{destinasi.nama}</div>
+              <div className="new-badge">New</div>
+            </Link>
+          ))
+        )}
       </div>
 
       {/* Pagination */}
