@@ -222,7 +222,7 @@ export default function Component() {
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? "Mengirim..." : "Kirim"}
+            {loading ? "Mengirim..." : "Selanjutnya"}
           </Button>
         </div>
       </div>
