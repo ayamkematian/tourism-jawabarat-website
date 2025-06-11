@@ -132,8 +132,8 @@ export default function AdminLayout({
           <AlertDialogHeader>
             <AlertDialogTitle>Konfirmasi Log Out</AlertDialogTitle>
             <AlertDialogDescription>
-              Log Out dari akun admin? Anda akan keluar dari dashboard dan harus login kembali untuk mengakses fitur
-              admin.
+              Log Out dari akun pengelola? Anda akan keluar dari dashboard dan harus login kembali untuk mengakses fitur
+              pengelola.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
