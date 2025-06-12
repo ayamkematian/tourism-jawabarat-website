@@ -1,14 +1,9 @@
-create table admin (
-  id serial primary key,
-  email varchar(255) unique not null,
-  password varchar(255) not null
-);
-
-create table loginpengelola (
+create table users (
   id serial primary key,
   email varchar(255) unique not null,
   password varchar(255) not null,
-  namalengkap varchar(255) not null
+  namalengkap varchar(255) not null,
+  role varchar(255) not null
 );
 
 create table destinasi (
