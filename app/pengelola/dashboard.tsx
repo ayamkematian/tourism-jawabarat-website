@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, ChangeEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +11,8 @@ import { supabase } from "@/lib/supabaseClient"
 interface Destination {
   id: string
   name: string
+  nibu?: string // Nomor Induk Berusaha
+  npwp?: string
   description: string
   category: string
   openingHours: string
@@ -26,6 +28,22 @@ export default function Component() {
   const [currentView, setCurrentView] = useState<"dashboard" | "registration" | "details" | "list">("dashboard")
   const [destinations, setDestinations] = useState<Destination[]>([])
   const [currentDestination, setCurrentDestination] = useState<Partial<Destination>>({})
+
+  const [ktpFile, setKtpFile] = useState<File | null>(null)
+  const [aktaFile, setAktaFile] = useState<File | null>(null)
+  const [sertifikatFile, setSertifikatFile] = useState<File | null>(null)
+  const [izinFile, setIzinFile] = useState<File | null>(null)
+  const [laporanFile, setLaporanFile] = useState<File | null>(null)
+  const [ktpUrl, setKtpUrl] = useState("")
+  const [aktaUrl, setAktaUrl] = useState("")
+  const [sertifikatUrl, setSertifikatUrl] = useState("")
+  const [izinUrl, setIzinUrl] = useState("")
+  const [laporanUrl, setLaporanUrl] = useState("")
+  const ktpInputRef = useRef<HTMLInputElement | null>(null)
+  const aktaInputRef = useRef<HTMLInputElement | null>(null)
+  const sertifikatInputRef = useRef<HTMLInputElement | null>(null)
+  const izinInputRef = useRef<HTMLInputElement | null>(null)
+  const laporanInputRef = useRef<HTMLInputElement | null>(null)
 
   const fetchDestinasiWithPengelola = async () => {
     // Ambil email pengelola dari localStorage
@@ -74,6 +92,16 @@ export default function Component() {
     getData()
   }, [currentView])
 
+  const uploadSyaratDokumen = async (file: File, type: string) => {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${type}-${Date.now()}.${fileExt}`
+    const { data, error } = await supabase.storage
+      .from('syarat-foto')
+      .upload(fileName, file)
+    if (error) throw error
+    return supabase.storage.from('syarat-foto').getPublicUrl(fileName).data.publicUrl
+  }
+
   const DashboardView = () => (
     <div className="flex-1 bg-[#eaeaea] p-6">
       <div className="bg-[#ffffff] rounded-lg p-6 max-w-2xl">
@@ -112,13 +140,31 @@ export default function Component() {
     </div>
   )
 
+  // Tambahkan state untuk setiap input di RegistrationView
+  const [namaTempat, setNamaTempat] = useState("");
+  const [nomorInduk, setNomorInduk] = useState("");
+  const [npwp, setNpwp] = useState("");
+
   const RegistrationView = () => {
-    const handleSaveAndContinue = () => {
+    const handleFileChange = (setter: any) => (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) setter(e.target.files[0])
+    }
+    const handleSaveAndContinue = async () => {
+      let ktp = ktpUrl, akta = aktaUrl, sertifikat = sertifikatUrl, izin = izinUrl, laporan = laporanUrl
+      if (ktpFile) ktp = await uploadSyaratDokumen(ktpFile, "ktp")
+      if (aktaFile) akta = await uploadSyaratDokumen(aktaFile, "akta")
+      if (sertifikatFile) sertifikat = await uploadSyaratDokumen(sertifikatFile, "sertifikat")
+      if (izinFile) izin = await uploadSyaratDokumen(izinFile, "izin")
+      if (laporanFile) laporan = await uploadSyaratDokumen(laporanFile, "laporan")
+      setKtpUrl(ktp); setAktaUrl(akta); setSertifikatUrl(sertifikat); setIzinUrl(izin); setLaporanUrl(laporan)
       setCurrentDestination({
+        ...currentDestination,
         id: Date.now().toString(),
-        name: (document.getElementById("nama-tempat") as HTMLInputElement)?.value || "",
+        name: namaTempat,
+        nibu: nomorInduk,
+        npwp: npwp, 
         status: "pending",
-        registrationDate: new Date().toLocaleDateString("id-ID"),
+        registrationDate: new Date().toLocaleDateString("id-ID")
       })
       setCurrentView("details")
     }
@@ -135,89 +181,66 @@ export default function Component() {
                 <Label htmlFor="nama-tempat" className="text-[#575757]">
                   Nama Tempat
                 </Label>
-                <Input id="nama-tempat" className="mt-1" />
+                <Input id="nama-tempat" className="mt-1" value={namaTempat} onChange={e => setNamaTempat(e.target.value)} />
               </div>
 
               <div>
                 <Label htmlFor="nomor-induk" className="text-[#575757]">
                   Nomor Induk Berusaha
                 </Label>
-                <Input id="nomor-induk" className="mt-1" />
+                <Input id="nomor-induk" className="mt-1" value={nomorInduk} onChange={e => setNomorInduk(e.target.value)} />
               </div>
 
               <div>
                 <Label htmlFor="npwp" className="text-[#575757]">
                   NPWP
                 </Label>
-                <Input id="npwp" className="mt-1" />
+                <Input id="npwp" className="mt-1" value={npwp} onChange={e => setNpwp(e.target.value)} />
               </div>
 
               <div>
                 <Label className="text-[#575757]">Kartu Tanda Penduduk</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
-                    <Upload className="w-4 h-4 mr-1" />
-                    Tambahkan file
-                  </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
-                </div>
+                <input type="file" accept="image/*" ref={ktpInputRef} style={{display:'none'}} onChange={handleFileChange(setKtpFile)} />
+                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => ktpInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-1" /> Upload KTP
+                </Button>
+                <span className="text-xs ml-2">{ktpFile?.name || (ktpUrl && "Sudah diupload")}</span>
               </div>
 
               <div>
                 <Label className="text-[#575757]">Akta Pendirian Usaha</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
-                    <Upload className="w-4 h-4 mr-1" />
-                    Tambahkan file
-                  </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
-                </div>
+                <input type="file" accept="image/*" ref={aktaInputRef} style={{display:'none'}} onChange={handleFileChange(setAktaFile)} />
+                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => aktaInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-1" /> Upload Akta
+                </Button>
+                <span className="text-xs ml-2">{aktaFile?.name || (aktaUrl && "Sudah diupload")}</span>
               </div>
 
-              <div>
-                <Label className="text-[#575757]">Kartu Tanda Penduduk</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
-                    <Upload className="w-4 h-4 mr-1" />
-                    Tambahkan file
-                  </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
               <div>
                 <Label className="text-[#575757]">Sertifikat Tanah</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
-                    <Upload className="w-4 h-4 mr-1" />
-                    Tambahkan file
-                  </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
-                </div>
+                <input type="file" accept="image/*" ref={sertifikatInputRef} style={{display:'none'}} onChange={handleFileChange(setSertifikatFile)} />
+                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => sertifikatInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-1" /> Upload Sertifikat
+                </Button>
+                <span className="text-xs ml-2">{sertifikatFile?.name || (sertifikatUrl && "Sudah diupload")}</span>
               </div>
 
               <div>
                 <Label className="text-[#575757]">Surat Izin Lurah dan Camat</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
-                    <Upload className="w-4 h-4 mr-1" />
-                    Tambahkan file
-                  </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
-                </div>
+                <input type="file" accept="image/*" ref={izinInputRef} style={{display:'none'}} onChange={handleFileChange(setIzinFile)} />
+                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => izinInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-1" /> Upload Izin
+                </Button>
+                <span className="text-xs ml-2">{izinFile?.name || (izinUrl && "Sudah diupload")}</span>
               </div>
 
               <div>
                 <Label className="text-[#575757]">Laporan Keuangan</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
-                    <Upload className="w-4 h-4 mr-1" />
-                    Tambahkan file
-                  </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
-                </div>
+                <input type="file" accept="image/*" ref={laporanInputRef} style={{display:'none'}} onChange={handleFileChange(setLaporanFile)} />
+                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => laporanInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-1" /> Upload Laporan
+                </Button>
+                <span className="text-xs ml-2">{laporanFile?.name || (laporanUrl && "Sudah diupload")}</span>
               </div>
             </div>
           </div>
@@ -332,7 +355,7 @@ export default function Component() {
                     <Upload className="w-4 h-4 mr-1" />
                     Tambahkan file
                   </Button>
-                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 5MB</span>
+                  <span className="text-[#ff0000] text-xs">format jpg/png/png maksimal 1MB</span>
                 </div>
               </div>
             </div>
