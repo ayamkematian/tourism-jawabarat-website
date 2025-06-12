@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { supabase } from "@/lib/supabaseClient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, MapPin, FileText, Newspaper } from "lucide-react"
@@ -117,18 +118,27 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors">
+            <Link
+              href="/admin/pengajuan"
+              className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors block"
+            >
               <h3 className="font-medium text-gray-900">Kelola Pengajuan</h3>
               <p className="text-sm text-gray-600">Review dan approve pengajuan destinasi</p>
-            </button>
-            <button className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors">
+            </Link>
+            <Link
+              href="/admin/artikel/create"
+              className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors block"
+            >
               <h3 className="font-medium text-gray-900">Buat Artikel</h3>
               <p className="text-sm text-gray-600">Tulis artikel berita terbaru</p>
-            </button>
-            <button className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors">
+            </Link>
+            <Link
+              href="/admin/destinasi"
+              className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors block"
+            >
               <h3 className="font-medium text-gray-900">Kelola Destinasi</h3>
               <p className="text-sm text-gray-600">Edit dan hapus destinasi wisata</p>
-            </button>
+            </Link>
           </div>
         </CardContent>
       </Card>
