@@ -19,12 +19,16 @@ export default function Login() {
     e.preventDefault();
     try {
       const { data, error } = await supabase
-        .from("loginpengelola")
+        .from("users")
         .select("*")
         .eq("email", email)
         .single();
       if (error || !data) {
         setErrorMessage("Pengelola tidak ditemukan.");
+        return;
+      }
+      if (data.role !== "pengelola") {
+        setErrorMessage("Akun ini bukan Akun Pengelola.");
         return;
       }
       const isMatch = await bcrypt.compare(password, data.password);

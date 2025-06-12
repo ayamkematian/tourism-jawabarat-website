@@ -98,8 +98,10 @@ export default function AdminLayout({
       {/* Header */}
       <header className="w-full bg-white py-4 px-6 flex items-center justify-between shadow-md sticky top-0 z-50">
         <div className="flex items-center gap-2">
-          <Image src="/tic.png" alt="Tourism Logo" width={70} height={70} />
-          <span className="text-[#008275] font-medium">| Tourism Information Center</span>
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
+          <div className="border-l-2 border-teal-600 pl-2">
+            <Link href="/admin/dashboard" className="text-[#008275] font-semibold">Tourism Information Center</Link>
+          </div>
         </div>
         <div className="flex items-center gap-4 relative">
           <button className="relative" onClick={() => setShowNotif((v) => !v)}>

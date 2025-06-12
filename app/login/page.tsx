@@ -18,12 +18,16 @@ export default function Login() {
     e.preventDefault();
     try {
       const { data, error } = await supabase
-        .from("admin")
+        .from("users")
         .select("*")
         .eq("email", email)
         .single();
       if (error || !data) {
         setErrorMessage("Admin tidak ditemukan.");
+        return;
+      }
+      if (data.role !== "admin") {
+        setErrorMessage("Akun ini bukan Akun Admin.");
         return;
       }
       const isMatch = await bcrypt.compare(password, data.password);

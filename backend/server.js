@@ -42,12 +42,16 @@ app.post("/api/login", async (req, res) => {
     return res.status(400).json({ message: "Email dan password wajib diisi." });
   }
   const { data, error } = await supabase
-    .from("admin")
+    .from("users")
     .select("*")
     .eq("email", email)
     .single();
   if (error || !data) {
     return res.status(404).json({ message: "Admin tidak ditemukan." });
+  }
+  if (data.role !== "admin") {
+    setErrorMessage("Akun ini bukan Akun Admin.");
+    return;
   }
   const admin = data;
   const isMatch = await bcrypt.compare(password, admin.password);
@@ -64,12 +68,16 @@ app.post("/api/login/pengelola", async (req, res) => {
     return res.status(400).json({ message: "Email dan password wajib diisi." });
   }
   const { data, error } = await supabase
-    .from("loginpengelola")
+    .from("users")
     .select("*")
     .eq("email", email)
     .single();
   if (error || !data) {
     return res.status(404).json({ message: "Pengelola tidak ditemukan." });
+  }
+  if (data.role !== "pengelola") {
+    setErrorMessage("Akun ini bukan Akun Pengelola.");
+    return;
   }
   const pengelola = data;
   const isMatch = await bcrypt.compare(password, pengelola.password);
@@ -87,7 +95,7 @@ app.post("/api/daftar/pengelola", async (req, res) => {
   }
   // Cek apakah email sudah terdaftar
   const { data: existing, error: cekError } = await supabase
-    .from("loginpengelola")
+    .from("users")
     .select("*")
     .eq("email", email)
     .single();
@@ -97,7 +105,7 @@ app.post("/api/daftar/pengelola", async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   const { error: insertError } = await supabase
     .from("loginpengelola")
-    .insert([{ email, password: hash, namalengkap: nama }]);
+    .insert([{ email, password: hash, namalengkap: nama, nama, role: "pengelola"}]);
   if (insertError) {
     return res.status(500).json({ message: "Terjadi kesalahan pada server." });
   }

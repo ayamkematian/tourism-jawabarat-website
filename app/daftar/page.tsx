@@ -32,7 +32,7 @@ export default function DaftarPengelola() {
     try {
       // Cek apakah email sudah terdaftar
       const { data: existing } = await supabase
-        .from("loginpengelola")
+        .from("users")
         .select("*")
         .eq("email", email)
         .single()
@@ -42,8 +42,8 @@ export default function DaftarPengelola() {
       }
       const hash = await bcrypt.hash(password, 10)
       const { error: insertError } = await supabase
-        .from("loginpengelola")
-        .insert([{ email, password: hash, namalengkap: nama }])
+        .from("users")
+        .insert([{ email, password: hash, namalengkap: nama, role: "pengelola" }])
       if (insertError) {
         setErrorMessage("Terjadi kesalahan pada server.")
         return
