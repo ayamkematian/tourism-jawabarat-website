@@ -170,10 +170,42 @@ export default function PengajuanPage() {
                         <p className="text-sm font-medium text-gray-700">Jam Buka:</p>
                         <p className="text-sm text-gray-600">{item.jambuka}</p>
                       </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">Deskripsi:</p>
-                      <p className="text-sm text-gray-600">{item.deskripsi}</p>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Deskripsi:</p>
+                        <p className="text-sm text-gray-600">{item.deskripsi}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Nomor Induk Berusaha:</p>
+                        <p className="text-sm text-gray-600">{item.nibu}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">NPWP:</p>
+                        <p className="text-sm text-gray-600">{item.npwp}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">KTP:</p>
+                        <p className="text-sm text-gray-600">{item.ktp}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Akta Pendirian Usaha:</p>
+                        <p className="text-sm text-gray-600">{item.akta}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Sertifikat Tanah:</p>
+                        <p className="text-sm text-gray-600">{item.sertifikat}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Surat Izin Lurah dan Camat:</p>
+                        <p className="text-sm text-gray-600">{item.izin}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Laporan Keuangan:</p>
+                        <p className="text-sm text-gray-600">{item.laporan}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">URL Gambar:</p>
+                        <p className="text-sm text-gray-600">{item.gambar}</p>
+                      </div>
                     </div>
 
                     {item.status !== "Disetujui" && (
