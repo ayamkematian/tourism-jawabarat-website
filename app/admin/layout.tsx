@@ -35,9 +35,15 @@ export default function AdminLayout({
     const fetchAdminData = async () => {
       const email = typeof window !== "undefined" ? localStorage.getItem("adminEmail") : null
       if (email) {
-        const { data: adminData } = await supabase.from("admin").select("nama_admin").eq("email", email).single()
-        if (adminData && adminData.nama_admin) {
-          setAdminName(adminData.nama_admin)
+        // Ambil nama admin dari tabel users kolom namalengkap
+        const { data: adminData } = await supabase
+          .from("users")
+          .select("namalengkap")
+          .eq("email", email)
+          .eq("role", "admin")
+          .single()
+        if (adminData && adminData.namalengkap) {
+          setAdminName(adminData.namalengkap)
         }
       }
     }
