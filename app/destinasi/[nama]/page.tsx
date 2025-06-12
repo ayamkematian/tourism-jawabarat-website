@@ -24,9 +24,10 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
       const database = getDatabase(firebaseApp)
       const rootReference = ref(database)
-      const dbGet = await get(child(rootReference, "raspberry_data/BandungD1/Density"))
+      // Gunakan params.nama untuk path dinamis
+      const dbGet = await get(child(rootReference, `raspberry_data/${params.nama}/Density`))
       const dbValue = dbGet.val()
-      setDensity(dbValue) // setelah ambil dari Firebase
+      setDensity(dbValue)
       console.log("Density:", dbValue)
     } catch (error) {
       console.error("Firebase DB Error:", error)
@@ -41,15 +42,16 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
       const database = getDatabase(firebaseApp)
       const rootReference = ref(database)
-      const snapshot = await get(child(rootReference, "Sensor/BandungA1"))
+      // Gunakan params.nama untuk path dinamis
+      const snapshot = await get(child(rootReference, `Sensor/${params.nama}`))
       if (snapshot.exists()) {
         const data = snapshot.val()
         setHumidity(data.Humidity)
         setTemperature(data.Temperature)
-        setRainStatus(data.Rain_Status) // ini string, bukan angka
+        setRainStatus(data.Rain_Status)
         console.log("Firebase data:", data)
       } else {
-        console.warn("No data found at Sensor/BandungA1")
+        console.warn(`No data found at Sensor/${params.nama}`)
       }
     } catch (error) {
       console.error("Firebase DB Error:", error)
@@ -85,14 +87,14 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
       try {
         const database = getDatabase(firebaseApp)
         const rootReference = ref(database)
-        const snapshot = await get(child(rootReference, "raspberry_data/BandungD1/Density"))
+        const snapshot = await get(child(rootReference, `raspberry_data/${params.nama}/Density`))
 
         if (snapshot.exists()) {
           const dbValue = snapshot.val()
           console.log("Density:", dbValue)
           // Kamu bisa set state di sini kalau perlu
         } else {
-          console.warn("No data found at raspberry_data/BandungD1/Density")
+          console.warn("No data found at raspberry_data/${params.nama}/Density")
         }
       } catch (err) {
         console.error("Firebase DB Error:", err)
@@ -196,9 +198,9 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
         <div className="border border-gray-200 rounded-lg p-4">
           <h3 className="text-lg font-medium mb-2">Cuaca Hari Ini di {destinasi.nama}</h3>
           <div className="flex flex-col items-center">
-            <p className="text-sm text-gray-500">Terasa spt</p>
+            <p className="text-sm text-gray-500">Suhu Saat Ini</p>
             <div className="text-6xl font-bold flex items-start">
-              {temperature !== null ? Math.round(temperature) : "--"}
+              {temperature !== null ? (temperature) : "--"}
               <span className="text-2xl">°</span>
             </div>
 

@@ -28,22 +28,26 @@ export default function AdminLayout({
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const [namaPengelola, setNamaPengelola] = useState<string>("")
-  const [isFetching, setIsFetching] = useState(false)
+  const [namaPengelola, setNamaPengelola] = useState<string>("");
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    setIsFetching(true)
-    const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null
+    setIsFetching(true);
+    const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null;
     if (!email) {
-      setIsFetching(false)
-      return
+      setIsFetching(false);
+      return;
     }
     const fetchNama = async () => {
-      const { data, error } = await supabase.from("loginpengelola").select("namalengkap, id").eq("email", email).single()
-      if (data && data.namalengkap) setNamaPengelola(data.namalengkap)
-      setIsFetching(false)
-    }
-    fetchNama()
+      const { data, error } = await supabase
+        .from("users")
+        .select("namalengkap")
+        .eq("email", email)
+        .single();
+      if (data && data.namalengkap) setNamaPengelola(data.namalengkap);
+      setIsFetching(false);
+    };
+    fetchNama();
   }, [])
 
   const menuItems = [
