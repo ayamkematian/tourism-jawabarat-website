@@ -23,6 +23,9 @@ export default function PengajuanPage() {
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false)
   const [selectedAcceptId, setSelectedAcceptId] = useState<number | null>(null)
   const [acceptLoading, setAcceptLoading] = useState(false)
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [selectedRejectId, setSelectedRejectId] = useState<number | null>(null)
+  const [rejectLoading, setRejectLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 10
 
@@ -38,7 +41,11 @@ export default function PengajuanPage() {
       .select("*")
       .order("created_at", { ascending: false })
 
-    const { data: pengelolaData } = await supabase.from("loginpengelola").select("*")
+    // Ambil data pengelola dari tabel users dengan role pengelola
+    const { data: pengelolaData } = await supabase
+      .from("users")
+      .select("id, namalengkap")
+      .eq("role", "pengelola")
 
     setPengajuan(pengajuanData || [])
     setPengelolaList(pengelolaData || [])
@@ -78,6 +85,15 @@ export default function PengajuanPage() {
     setAcceptLoading(false)
     setAcceptDialogOpen(false)
     setSelectedAcceptId(null)
+    fetchData()
+  }
+
+  const handleReject = async (id: number) => {
+    setRejectLoading(true)
+    await supabase.from("daftar_destinasi").delete().eq("id", id)
+    setRejectLoading(false)
+    setRejectDialogOpen(false)
+    setSelectedRejectId(null)
     fetchData()
   }
 
@@ -209,7 +225,7 @@ export default function PengajuanPage() {
                     </div>
 
                     {item.status !== "Disetujui" && (
-                      <div className="pt-3 border-t">
+                      <div className="pt-3 border-t flex gap-2">
                         <Button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -219,6 +235,17 @@ export default function PengajuanPage() {
                           className="bg-[#008275] hover:bg-[#00a38f]"
                         >
                           Setujui Pengajuan
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedRejectId(item.id)
+                            setRejectDialogOpen(true)
+                          }}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Tolak Pengajuan
                         </Button>
                       </div>
                     )}
@@ -271,6 +298,28 @@ export default function PengajuanPage() {
               disabled={acceptLoading}
             >
               {acceptLoading ? "Memproses..." : "Setujui"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Reject Dialog */}
+      <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Penolakan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menolak dan menghapus pengajuan destinasi ini? Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={rejectLoading}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => selectedRejectId && handleReject(selectedRejectId)}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={rejectLoading}
+            >
+              {rejectLoading ? "Memproses..." : "Tolak & Hapus"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

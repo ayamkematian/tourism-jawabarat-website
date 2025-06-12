@@ -28,12 +28,26 @@ export default function Component() {
   const [currentDestination, setCurrentDestination] = useState<Partial<Destination>>({})
 
   const fetchDestinasiWithPengelola = async () => {
+    // Ambil email pengelola dari localStorage
+    const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null
+    if (!email) return []
+    // Ambil id pengelola dari tabel users
+    const { data: pengelola, error: userError } = await supabase
+      .from("users")
+      .select("id, namalengkap")
+      .eq("email", email)
+      .eq("role", "pengelola")
+      .single()
+    if (userError || !pengelola?.id) return []
+    // Ambil destinasi berdasarkan pengelola_id
     const { data, error } = await supabase
       .from("daftar_destinasi")
-      .select("*, loginpengelola(namalengkap)")
+      .select("*", { count: "exact" })
+      .eq("pengelola_id", pengelola.id)
       .order("created_at", { ascending: false })
     if (error) return []
-    return data
+    // Tambahkan nama pengelola ke setiap destinasi
+    return (data || []).map((item: any) => ({ ...item, manager: pengelola.namalengkap }))
   }
 
   useEffect(() => {
@@ -49,7 +63,7 @@ export default function Component() {
           ticketPrice: item.hargatiket,
           address: item.alamat,
           location: item.lokasi,
-          manager: item.loginpengelola?.namalengkap || "-",
+          manager: item.manager || "-",
           status: "pending",
           registrationDate: item.created_at
             ? new Date(item.created_at).toLocaleDateString("id-ID")
@@ -238,7 +252,8 @@ export default function Component() {
       const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null
       let pengelolaId = null
       if (email) {
-        const { data: pengelola } = await supabase.from("loginpengelola").select("id").eq("email", email).single()
+        // Ambil id dari tabel users, bukan loginpengelola
+        const { data: pengelola } = await supabase.from("users").select("id").eq("email", email).eq("role", "pengelola").single()
         if (pengelola?.id) pengelolaId = pengelola.id
       }
       // Insert ke daftar_destinasi
