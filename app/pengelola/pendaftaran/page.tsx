@@ -3,8 +3,17 @@ import { useState, useRef } from "react"
 import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
+import { supabase } from "../../../lib/supabaseClient";
 import { Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
+
+async function uploadToBucket(bucket: string, file: File) {
+  const filePath = `${Date.now()}_${file.name}`;
+  const { error } = await supabase.storage.from(bucket).upload(filePath, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+  return data.publicUrl;
+}
 
 export default function PendaftaranDestinasi() {
   const [namaTempat, setNamaTempat] = useState("");
@@ -49,13 +58,33 @@ export default function PendaftaranDestinasi() {
     }
   };
 
-  const handleSaveAndContinue = () => {
-    // Simpan data ke localStorage agar bisa diambil di halaman detail
-    localStorage.setItem("pendaftaranData", JSON.stringify({
-      namaTempat, nomorInduk, npwp
-    }))
-    router.push("/pengelola/detail")
-  }
+  const handleSaveAndContinue = async () => {
+    setWarning("");
+    try {
+      // Upload file ke bucket sesuai jenis
+      const ktpUrl = ktpFile ? await uploadToBucket("foto-ktp", ktpFile) : "";
+      const aktaUrl = aktaFile ? await uploadToBucket("foto-akte-pendirian-usaha", aktaFile) : "";
+      const sertifikatUrl = sertifikatFile ? await uploadToBucket("foto-sertifikat-tanah", sertifikatFile) : "";
+      const izinUrl = izinFile ? await uploadToBucket("foto-surat-izin", izinFile) : "";
+      const laporanUrl = laporanFile ? await uploadToBucket("foto-laporan-keuangan", laporanFile) : "";
+
+      // Simpan data ke localStorage
+      const pendaftaranData = {
+        namaTempat,
+        nomorInduk,
+        npwp,
+        ktp: ktpUrl,
+        akta: aktaUrl,
+        sertifikat: sertifikatUrl,
+        izin: izinUrl,
+        laporan: laporanUrl,
+      };
+      localStorage.setItem("pendaftaranData", JSON.stringify(pendaftaranData));
+      router.push("/pengelola/detail");
+    } catch (err: any) {
+      setWarning(err.message || "Gagal upload data/file.");
+    }
+  };
 
   return (
     <div className="flex-1 bg-[#eaeaea] p-6">

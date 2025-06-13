@@ -38,7 +38,7 @@ export default function Login() {
       }
       alert("Login berhasil!");
       localStorage.setItem("pengelolaEmail", email);
-      router.push("/pengelola");
+      router.push("/pengelola/dashboard");
     } catch (error) {
       setErrorMessage("Terjadi kesalahan pada server.");
     }

@@ -70,7 +70,7 @@ export default function PengajuanPage() {
       const destinasiData = {
         nama: pengajuanItem.nama,
         slug: pengajuanItem.slug,
-        gambar: pengajuanItem.gambar,
+        gambar: pengajuanItem.fotourl,
         deskripsi: pengajuanItem.deskripsi,
         lokasi: pengajuanItem.lokasi,
         kategori: pengajuanItem.kategori,
@@ -200,27 +200,96 @@ export default function PengajuanPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">KTP:</p>
-                        <p className="text-sm text-gray-600">{item.ktp}</p>
+                        {item.ktp ? (
+                          <a href={item.ktp} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.ktp}
+                              alt="KTP"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">Akta Pendirian Usaha:</p>
-                        <p className="text-sm text-gray-600">{item.akta}</p>
+                        {item.akta ? (
+                          <a href={item.akta} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.akta}
+                              alt="Akta"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">Sertifikat Tanah:</p>
-                        <p className="text-sm text-gray-600">{item.sertifikat}</p>
+                        {item.sertifikat ? (
+                          <a href={item.sertifikat} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.sertifikat}
+                              alt="Sertifikat"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">Surat Izin Lurah dan Camat:</p>
-                        <p className="text-sm text-gray-600">{item.izin}</p>
+                        {item.izin ? (
+                          <a href={item.izin} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.izin}
+                              alt="Izin"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">Laporan Keuangan:</p>
-                        <p className="text-sm text-gray-600">{item.laporan}</p>
+                        {item.laporan ? (
+                          <a href={item.laporan} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.laporan}
+                              alt="Laporan"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">URL Gambar:</p>
-                        <p className="text-sm text-gray-600">{item.gambar}</p>
+                        <p className="text-sm font-medium text-gray-700">Foto Destinasi:</p>
+                        {item.fotourl && Array.isArray(item.fotourl) && item.fotourl.length > 0 ? (
+                          <div className="flex gap-2 flex-wrap">
+                            {item.fotourl.map((url: string, idx: number) => (
+                              <a
+                                key={idx}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Preview ${idx + 1}`}
+                                  className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada gambar</span>
+                        )}
                       </div>
                     </div>
 

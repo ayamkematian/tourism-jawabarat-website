@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
-import { Clock, DollarSign, MapPin } from "lucide-react"
+import { Clock, MapPin } from "lucide-react"
 import { supabase } from "../../../lib/supabaseClient"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -26,6 +26,11 @@ export default function PengelolaDashboardPage() {
   const [loading, setLoading] = useState(false)
   const [showList, setShowList] = useState(false)
   const router = useRouter();
+  const RupiahIcon = () => (
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+      <text x="0" y="15" fontSize="14" fontWeight="bold" fill="#008275">Rp</text>
+    </svg>
+  );
 
   useEffect(() => {
     const fetchDestinasiWithPengelola = async () => {
@@ -140,7 +145,7 @@ export default function PengelolaDashboardPage() {
                       )}
                       {destination.ticketPrice && (
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-[#008275]" />
+                          <RupiahIcon />
                           <span className="text-[#575757]">{destination.ticketPrice}</span>
                         </div>
                       )}

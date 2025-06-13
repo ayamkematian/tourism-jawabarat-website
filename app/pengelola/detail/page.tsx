@@ -14,13 +14,6 @@ export default function DetailDestinasi() {
   const [submitError, setSubmitError] = useState("")
   const router = useRouter()
 
-  // Ambil data pendaftaran dari localStorage
-  const [pendaftaranData, setPendaftaranData] = useState<{namaTempat:string, nomorInduk:string, npwp:string}|null>(null)
-  useEffect(() => {
-    const data = localStorage.getItem("pendaftaranData")
-    if (data) setPendaftaranData(JSON.parse(data))
-  }, [])
-
   const validatePhotoFile = (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
@@ -50,7 +43,10 @@ export default function DetailDestinasi() {
     }
     setSubmitLoading(true);
     try {
-      // 1. Upload foto ke Supabase Storage
+      // 1. Ambil data pendaftaran dari localStorage
+      const pendaftaranData = JSON.parse(localStorage.getItem("pendaftaranData") || "{}");
+
+      // 2. Upload foto destinasi ke bucket
       const uploadedPhotoUrls: string[] = [];
       for (const file of destinationPhotos) {
         const fileExt = file.name.split('.').pop();
@@ -60,30 +56,40 @@ export default function DetailDestinasi() {
         const { data } = supabase.storage.from('foto-destinasi').getPublicUrl(fileName);
         uploadedPhotoUrls.push(data.publicUrl);
       }
-      // 2. Ambil data form
+
+      // 3. Ambil data detail dari form
       const deskripsi = (document.getElementById("deskripsi") as HTMLTextAreaElement)?.value || "";
       const kategori = (document.getElementById("kategori") as HTMLInputElement)?.value || "";
       const jambuka = (document.getElementById("jam-buka") as HTMLInputElement)?.value || "";
       const hargatiket = (document.getElementById("harga-tiket") as HTMLInputElement)?.value || "";
       const alamat = (document.getElementById("alamat") as HTMLTextAreaElement)?.value || "";
       const lokasi = (document.getElementById("lokasi") as HTMLInputElement)?.value || "";
-      // 3. Ambil data pendaftaran dari localStorage
-      const namaTempat = pendaftaranData?.namaTempat || "";
-      const nomorInduk = pendaftaranData?.nomorInduk || "";
-      const npwp = pendaftaranData?.npwp || "";
-      // 4. Ambil email pengelola dari localStorage
+
+      // 4. Gabungkan semua data
+      const slug = pendaftaranData.namaTempat
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+
+      // 5. Ambil email pengelola dari localStorage
       const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null;
       let pengelolaId = null;
       if (email) {
         const { data: pengelola } = await supabase.from("users").select("id").eq("email", email).eq("role", "pengelola").single();
         if (pengelola?.id) pengelolaId = pengelola.id;
       }
-      // 5. Insert ke tabel daftar_destinasi
+
+      // 6. Insert ke tabel daftar_destinasi SEKALI SAJA
       const { error: insertError } = await supabase.from("daftar_destinasi").insert([
         {
-          nama: namaTempat,
-          nibu: nomorInduk,
-          npwp: npwp,
+          nama: pendaftaranData.namaTempat,
+          nibu: pendaftaranData.nomorInduk,
+          npwp: pendaftaranData.npwp,
+          ktp: pendaftaranData.ktp,
+          akta: pendaftaranData.akta,
+          sertifikat: pendaftaranData.sertifikat,
+          izin: pendaftaranData.izin,
+          laporan: pendaftaranData.laporan,
           deskripsi,
           kategori,
           jambuka,
@@ -92,11 +98,12 @@ export default function DetailDestinasi() {
           lokasi,
           pengelola_id: pengelolaId,
           fotourl: uploadedPhotoUrls,
+          slug,
           status: "pending",
-          registrationDate: new Date().toLocaleDateString("id-ID"),
         },
       ]);
       if (insertError) throw insertError;
+
       alert("Pendaftaran destinasi berhasil!");
       setDestinationPhotos([]);
       localStorage.removeItem("pendaftaranData");
