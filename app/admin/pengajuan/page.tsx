@@ -180,7 +180,7 @@ export default function PengajuanPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">Harga Tiket:</p>
-                        <p className="text-sm text-gray-600">{item.hargatiket}</p>
+                        <p className="text-sm text-gray-600">Rp {item.hargatiket}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700">Jam Buka:</p>
