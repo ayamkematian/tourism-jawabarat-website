@@ -1,17 +1,18 @@
 "use client"
 
-import { useState, useEffect, useRef, ChangeEvent } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Home, Upload, User, MapPin, Clock, DollarSign } from "lucide-react"
-import { supabase } from "@/lib/supabaseClient"
+import { useState, useEffect, useRef } from "react"
+import type { ChangeEvent } from "react"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { Textarea } from "../../components/ui/textarea"
+import { Upload, MapPin, Clock, DollarSign } from "lucide-react"
+import { supabase } from "../../lib/supabaseClient"
 
 interface Destination {
   id: string
   name: string
-  nibu?: string // Nomor Induk Berusaha
+  nibu?: string 
   npwp?: string
   description: string
   category: string
@@ -49,6 +50,7 @@ export default function Component() {
     // Ambil email pengelola dari localStorage
     const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null
     if (!email) return []
+    
     // Ambil id pengelola dari tabel users
     const { data: pengelola, error: userError } = await supabase
       .from("users")
@@ -57,6 +59,7 @@ export default function Component() {
       .eq("role", "pengelola")
       .single()
     if (userError || !pengelola?.id) return []
+
     // Ambil destinasi berdasarkan pengelola_id
     const { data, error } = await supabase
       .from("daftar_destinasi")
@@ -95,7 +98,7 @@ export default function Component() {
   const uploadSyaratDokumen = async (file: File, type: string) => {
     const fileExt = file.name.split('.').pop()
     const fileName = `${type}-${Date.now()}.${fileExt}`
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('syarat-foto')
       .upload(fileName, file)
     if (error) throw error
@@ -119,18 +122,18 @@ export default function Component() {
               onClick={() => setCurrentView("registration")}
               className="bg-[#008275] hover:bg-[#4ca69d] text-white px-6"
             >
-              Daftar Destinasi
+              Daftar Destinasi  
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <Button onClick={() => setCurrentView("list")} className="bg-[#008275] hover:bg-[#4ca69d] text-white px-6">
+          <div className="space-x-2 space-y-4">
+            <Button onClick={() => setCurrentView("list")} 
+              className="bg-[#008275] hover:bg-[#4ca69d] text-white px-6">
               Lihat Daftar Destinasi
             </Button>
             <Button
               onClick={() => setCurrentView("registration")}
-              variant="outline"
-              className="border-[#008275] text-[#008275] px-6"
+              className="bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]"
             >
               Tambah Destinasi Baru
             </Button>
@@ -140,15 +143,40 @@ export default function Component() {
     </div>
   )
 
-  // Tambahkan state untuk setiap input di RegistrationView
-  const [namaTempat, setNamaTempat] = useState("");
-  const [nomorInduk, setNomorInduk] = useState("");
-  const [npwp, setNpwp] = useState("");
-
+  // RegistrationView: pindahkan state input ke dalam komponen agar input bisa diketik normal
   const RegistrationView = () => {
-    const handleFileChange = (setter: any) => (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) setter(e.target.files[0])
+    const [namaTempat, setNamaTempat] = useState("");
+    const [nomorInduk, setNomorInduk] = useState("");
+    const [npwp, setNpwp] = useState("");
+    const [warning, setWarning] = useState(""); // Tambahkan state untuk warning
+
+      // Fungsi validasi file
+  const validateFile = (file: File) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      setWarning("File harus berupa jpg, jpeg, atau png.");
+      return false;
     }
+    if (file.size > 1024 * 1024) {
+      setWarning("Ukuran file maksimal 1MB.");
+      return false;
+    }
+    setWarning("");
+    return true;
+  };
+
+  const handleFileChange = (setter: any) => (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (validateFile(file)) {
+        setter(file);
+      } else {
+        setter(null);
+        e.target.value = ""; // reset input jika tidak valid
+      }
+    }
+  };
+  
     const handleSaveAndContinue = async () => {
       let ktp = ktpUrl, akta = aktaUrl, sertifikat = sertifikatUrl, izin = izinUrl, laporan = laporanUrl
       if (ktpFile) ktp = await uploadSyaratDokumen(ktpFile, "ktp")
@@ -174,8 +202,10 @@ export default function Component() {
         <div className="bg-[#ffffff] rounded-lg p-6 max-w-4xl">
           <h1 className="text-2xl font-bold text-[#000000] mb-2">Pendaftaran Destinasi</h1>
           <p className="text-[#575757] mb-6">Isi data di bawah dengan lengkap</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {warning && (
+            <div className="mb-4 text-xs text-[#ff0000] font-semibold">{warning}</div>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="nama-tempat" className="text-[#575757]">
@@ -184,60 +214,62 @@ export default function Component() {
                 <Input id="nama-tempat" className="mt-1" value={namaTempat} onChange={e => setNamaTempat(e.target.value)} />
               </div>
 
-              <div>
+              <div className="flex flex-col">
                 <Label htmlFor="nomor-induk" className="text-[#575757]">
                   Nomor Induk Berusaha
                 </Label>
-                <Input id="nomor-induk" className="mt-1" value={nomorInduk} onChange={e => setNomorInduk(e.target.value)} />
+                <Input id="nomor-induk" type="number" className="mt-1" value={nomorInduk} onChange={e => setNomorInduk(e.target.value.replace(/[^0-9]/g, ""))} />
               </div>
 
-              <div>
+              <div className="flex flex-col">
                 <Label htmlFor="npwp" className="text-[#575757]">
                   NPWP
                 </Label>
-                <Input id="npwp" className="mt-1" value={npwp} onChange={e => setNpwp(e.target.value)} />
+                <Input id="npwp" type="number" className="mt-1" value={npwp} onChange={e => setNpwp(e.target.value.replace(/[^0-9]/g, ""))} />
               </div>
 
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label className="text-[#575757]">Kartu Tanda Penduduk</Label>
                 <input type="file" accept="image/*" ref={ktpInputRef} style={{display:'none'}} onChange={handleFileChange(setKtpFile)} />
-                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => ktpInputRef.current?.click()}>
+                <Button type="button" className="w-40 bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]" onClick={() => ktpInputRef.current?.click()}>
                   <Upload className="w-4 h-4 mr-1" /> Upload KTP
                 </Button>
                 <span className="text-xs ml-2">{ktpFile?.name || (ktpUrl && "Sudah diupload")}</span>
               </div>
 
-              <div>
+              <div className= 'flex flex-col gap-2'> 
                 <Label className="text-[#575757]">Akta Pendirian Usaha</Label>
                 <input type="file" accept="image/*" ref={aktaInputRef} style={{display:'none'}} onChange={handleFileChange(setAktaFile)} />
-                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => aktaInputRef.current?.click()}>
+                <Button type="button" className="w-40 bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]" onClick={() => aktaInputRef.current?.click()}>
                   <Upload className="w-4 h-4 mr-1" /> Upload Akta
                 </Button>
                 <span className="text-xs ml-2">{aktaFile?.name || (aktaUrl && "Sudah diupload")}</span>
               </div>
-
-              <div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className='flex flex-col gap-2'>
                 <Label className="text-[#575757]">Sertifikat Tanah</Label>
                 <input type="file" accept="image/*" ref={sertifikatInputRef} style={{display:'none'}} onChange={handleFileChange(setSertifikatFile)} />
-                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => sertifikatInputRef.current?.click()}>
+                <Button type="button" className="w-40 bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]" onClick={() => sertifikatInputRef.current?.click()}>
                   <Upload className="w-4 h-4 mr-1" /> Upload Sertifikat
                 </Button>
                 <span className="text-xs ml-2">{sertifikatFile?.name || (sertifikatUrl && "Sudah diupload")}</span>
               </div>
 
-              <div>
+              <div className='flex flex-col gap-2'>
                 <Label className="text-[#575757]">Surat Izin Lurah dan Camat</Label>
                 <input type="file" accept="image/*" ref={izinInputRef} style={{display:'none'}} onChange={handleFileChange(setIzinFile)} />
-                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => izinInputRef.current?.click()}>
+                <Button type="button" className="w-40 bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]" onClick={() => izinInputRef.current?.click()}>
                   <Upload className="w-4 h-4 mr-1" /> Upload Izin
                 </Button>
                 <span className="text-xs ml-2">{izinFile?.name || (izinUrl && "Sudah diupload")}</span>
               </div>
 
-              <div>
+              <div className='flex flex-col gap-2'>
                 <Label className="text-[#575757]">Laporan Keuangan</Label>
                 <input type="file" accept="image/*" ref={laporanInputRef} style={{display:'none'}} onChange={handleFileChange(setLaporanFile)} />
-                <Button type="button" variant="outline" size="sm" className="text-[#008275] border-[#008275]" onClick={() => laporanInputRef.current?.click()}>
+                <Button type="button" className="w-40 bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]" onClick={() => laporanInputRef.current?.click()}>
                   <Upload className="w-4 h-4 mr-1" /> Upload Laporan
                 </Button>
                 <span className="text-xs ml-2">{laporanFile?.name || (laporanUrl && "Sudah diupload")}</span>
@@ -250,9 +282,8 @@ export default function Component() {
               Simpan & Lanjutkan
             </Button>
             <Button
-              variant="outline"
               onClick={() => setCurrentView("dashboard")}
-              className="border-[#008275] text-[#008275]"
+              className="bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]"
             >
               Kembali
             </Button>
@@ -313,7 +344,7 @@ export default function Component() {
 
               <div>
                 <Label htmlFor="jam-buka" className="text-[#575757]">
-                  Jam Buka
+                  Jam Buka.a
                 </Label>
                 <Input id="jam-buka" className="mt-1" placeholder="08:00 - 17:00" />
               </div>
@@ -351,7 +382,7 @@ export default function Component() {
               <div>
                 <Label className="text-[#575757]">Gambar (5 Foto)</Label>
                 <div className="mt-1 flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-[#008275] border-[#008275]">
+                  <Button className="text-[#008275] border-[#008275]">
                     <Upload className="w-4 h-4 mr-1" />
                     Tambahkan file
                   </Button>
@@ -366,7 +397,6 @@ export default function Component() {
               Kirim
             </Button>
             <Button
-              variant="outline"
               onClick={() => setCurrentView("registration")}
               className="border-[#008275] text-[#008275]"
             >
@@ -460,9 +490,8 @@ export default function Component() {
 
         <div className="mt-6">
           <Button
-            variant="outline"
             onClick={() => setCurrentView("dashboard")}
-            className="border-[#008275] text-[#008275]"
+            className="bg-white border border-[#008275] text-[#008275] px-6 hover:bg-[#f3f3f3]"
           >
             Kembali ke Dashboard
           </Button>
