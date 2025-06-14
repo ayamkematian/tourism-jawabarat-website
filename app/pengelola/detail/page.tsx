@@ -43,9 +43,10 @@ export default function DetailDestinasi() {
     }
     setSubmitLoading(true);
     try {
+      
       // 1. Ambil data pendaftaran dari localStorage
       const pendaftaranData = JSON.parse(localStorage.getItem("pendaftaranData") || "{}");
-
+      
       // 2. Upload foto destinasi ke bucket
       const uploadedPhotoUrls: string[] = [];
       for (const file of destinationPhotos) {
@@ -164,14 +165,16 @@ export default function DetailDestinasi() {
               <Input id="kategori" className="mt-1" placeholder="Wisata Air" />
             </div>
             <div>
-              <Label className="text-[#575757]">Gambar (5 Foto)</Label>
+              <Label className="text-[#575757]">Gambar (5 Foto) </Label>
+              {}
+              <div className="mt-1">
               <input
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handlePhotoInput}
-                className="mt-1"
               />
+              </div>
               <div className="flex gap-2 mt-2 flex-wrap">
                 {destinationPhotos.map((file, idx) => (
                   <div key={idx} className="flex flex-col items-center">

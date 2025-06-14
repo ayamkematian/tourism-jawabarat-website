@@ -102,18 +102,21 @@ export default function PendaftaranDestinasi() {
               </Label>
               <Input id="nama-tempat" className="mt-1" value={namaTempat} onChange={e => setNamaTempat(e.target.value)} />
             </div>
+
             <div className="flex flex-col">
               <Label htmlFor="nomor-induk" className="text-[#575757]">
                 Nomor Induk Berusaha
               </Label>
               <Input id="nomor-induk" type="text" className="mt-1" value={nomorInduk} onChange={e => setNomorInduk(e.target.value.replace(/[^0-9]/g, ""))} />
             </div>
+
             <div className="flex flex-col">
               <Label htmlFor="npwp" className="text-[#575757]">
                 NPWP
               </Label>
               <Input id="npwp" type="text" className="mt-1" value={npwp} onChange={e => setNpwp(e.target.value.replace(/[^0-9]/g, ""))} />
             </div>
+
             <div className="flex flex-col gap-2">
               <Label className="text-[#575757]">Kartu Tanda Penduduk</Label>
               <input type="file" accept="image/*" ref={ktpInputRef} style={{display:'none'}} onChange={handleFileChange(setKtpFile)} />
@@ -122,6 +125,7 @@ export default function PendaftaranDestinasi() {
               </Button>
               <span className="text-xs ml-2">{ktpFile?.name}</span>
             </div>
+
             <div className= 'flex flex-col gap-2'> 
               <Label className="text-[#575757]">Akta Pendirian Usaha</Label>
               <input type="file" accept="image/*" ref={aktaInputRef} style={{display:'none'}} onChange={handleFileChange(setAktaFile)} />
@@ -131,6 +135,7 @@ export default function PendaftaranDestinasi() {
               <span className="text-xs ml-2">{aktaFile?.name}</span>
             </div>
           </div>
+
           <div className="space-y-4">
             <div className='flex flex-col gap-2'>
               <Label className="text-[#575757]">Sertifikat Tanah</Label>
@@ -140,6 +145,7 @@ export default function PendaftaranDestinasi() {
               </Button>
               <span className="text-xs ml-2">{sertifikatFile?.name}</span>
             </div>
+
             <div className='flex flex-col gap-2'>
               <Label className="text-[#575757]">Surat Izin Lurah dan Camat</Label>
               <input type="file" accept="image/*" ref={izinInputRef} style={{display:'none'}} onChange={handleFileChange(setIzinFile)} />
@@ -148,6 +154,7 @@ export default function PendaftaranDestinasi() {
               </Button>
               <span className="text-xs ml-2">{izinFile?.name}</span>
             </div>
+
             <div className='flex flex-col gap-2'>
               <Label className="text-[#575757]">Laporan Keuangan</Label>
               <input type="file" accept="image/*" ref={laporanInputRef} style={{display:'none'}} onChange={handleFileChange(setLaporanFile)} />
@@ -156,8 +163,10 @@ export default function PendaftaranDestinasi() {
               </Button>
               <span className="text-xs ml-2">{laporanFile?.name}</span>
             </div>
+
           </div>
         </div>
+        
         <div className="flex gap-4 mt-8">
           <Button onClick={handleSaveAndContinue} className="bg-[#008275] hover:bg-[#4ca69d] text-white px-6">
             Simpan & Lanjutkan
