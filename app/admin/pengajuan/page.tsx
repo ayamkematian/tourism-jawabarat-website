@@ -77,13 +77,14 @@ export default function PengajuanPage() {
       const destinasiData = {
         nama: pengajuanItem.nama,
         slug: pengajuanItem.slug,
-        gambar: pengajuanItem.fotourl,
+        gambar: Array.isArray(pengajuanItem.fotourl) ? pengajuanItem.fotourl[0] : pengajuanItem.fotourl,
         deskripsi: pengajuanItem.deskripsi,
         lokasi: pengajuanItem.lokasi,
         kategori: pengajuanItem.kategori,
         alamat: pengajuanItem.alamat,
         hargatiket: pengajuanItem.hargatiket,
         jambuka: pengajuanItem.jambuka,
+        fotourl: pengajuanItem.fotourl,
       }
 
       await supabase.from("destinasi").insert(destinasiData)

@@ -131,8 +131,18 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     return <div className="container mx-auto px-4 py-6">Loading...</div>
   }
 
+  // Parse fotourl jika berupa string JSON
+  let fotoArray: string[] = [];
+  if (typeof destinasi.fotourl === "string" && destinasi.fotourl.startsWith("[")) {
+    try {
+      fotoArray = JSON.parse(destinasi.fotourl);
+    } catch {
+      fotoArray = [];
+    }
+  }
+
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 pb-10">
       <head><link rel="icon" href="/tic.png" /></head>
       {/* Navigation Bar */}
       <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
@@ -444,6 +454,92 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
             </div>
           </div>
         </div>
+
+        {/* Collage Foto Destinasi */}
+        {fotoArray.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-4 text-[#008275]">Galeri Foto</h3>
+            <div
+              className="grid gap-4"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 2fr 1fr",
+                gridTemplateRows: "1fr 1fr",
+                gridTemplateAreas: `
+                  "foto1 foto3 foto4"
+                  "foto2 foto3 foto5"
+                `,
+                height: 500,
+              }}
+            >
+              {/* Gambar 1 */}
+              <div style={{ gridArea: "foto1" }}>
+                {fotoArray[0] && (
+                  <Image
+                    src={fotoArray[0]}
+                    alt="Gambar 1"
+                    width={400}
+                    height={200}
+                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-[1.01]"
+                    style={{ height: "100%", width: "100%" }}
+                  />
+                )}
+              </div>
+              {/* Gambar 2 */}
+              <div style={{ gridArea: "foto2" }}>
+                {fotoArray[1] && (
+                  <Image
+                    src={fotoArray[1]}
+                    alt="Gambar 2"
+                    width={400}
+                    height={200}
+                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-[1.01]"
+                    style={{ height: "100%", width: "100%" }}
+                  />
+                )}
+              </div>
+              {/* Gambar 3 (besar di tengah) */}
+              <div style={{ gridArea: "foto3" }}>
+                {fotoArray[2] && (
+                  <Image
+                    src={fotoArray[2]}
+                    alt="Gambar 3"
+                    width={800}
+                    height={400}
+                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-[1.01]"
+                    style={{ height: "100%", width: "100%" }}
+                  />
+                )}
+              </div>
+              {/* Gambar 4 */}
+              <div style={{ gridArea: "foto4" }}>
+                {fotoArray[3] && (
+                  <Image
+                    src={fotoArray[3]}
+                    alt="Gambar 4"
+                    width={400}
+                    height={200}
+                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-[1.01]"
+                    style={{ height: "100%", width: "100%" }}
+                  />
+                )}
+              </div>
+              {/* Gambar 5 */}
+              <div style={{ gridArea: "foto5" }}>
+                {fotoArray[4] && (
+                  <Image
+                    src={fotoArray[4]}
+                    alt="Gambar 5"
+                    width={400}
+                    height={200}
+                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-[1.01]"
+                    style={{ height: "100%", width: "100%" }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
