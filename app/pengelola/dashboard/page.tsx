@@ -17,7 +17,7 @@ interface Destination {
   address: string
   location: string
   manager: string
-  status: "pending" | "approved" | "rejected"
+  status: "pending" | "Disetujui" | "Ditolak"
   registrationDate: string
 }
 
@@ -112,22 +112,26 @@ export default function PengelolaDashboardPage() {
                         <p className="text-[#888888] text-xs">Didaftarkan pada: {destination.registrationDate}</p>
                       </div>
                       <div className="flex items-center gap-2 mt-2 md:mt-0">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            destination.status === "pending"
-                              ? "bg-[#fff3cd] text-[#856404]"
-                              : destination.status === "approved"
-                              ? "bg-[#d4edda] text-[#155724]"
-                              : "bg-[#f8d7da] text-[#721c24]"
-                          }`}
-                        >
-                          {destination.status === "pending"
-                            ? "Dalam Proses"
-                            : destination.status === "approved"
-                            ? "Disetujui"
-                            : "Ditolak"}
-                        </span>
-                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          destination.status === "pending"
+                            ? "bg-[#fff3cd] text-[#856404]"
+                            : destination.status === "Disetujui"
+                            ? "bg-[#d4edda] text-[#155724]"
+                            : destination.status === "Ditolak"
+                            ? "bg-[#f8d7da] text-[#721c24]"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {destination.status === "pending"
+                          ? "Dalam Proses"
+                          : destination.status === "Disetujui"
+                          ? "Disetujui"
+                          : destination.status === "Ditolak"
+                          ? "Ditolak"
+                          : destination.status}
+                      </span>
+                    </div>
                     </div>
                     {destination.description && <p className="text-[#575757] mb-4 line-clamp-2 text-xs sm:text-base">{destination.description}</p>}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs sm:text-sm">

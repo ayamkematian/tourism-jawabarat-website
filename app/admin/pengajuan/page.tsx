@@ -46,8 +46,15 @@ export default function PengajuanPage() {
       .from("users")
       .select("id, namalengkap")
       .eq("role", "pengelola")
+    
+    // Urutkan: pending dulu, lalu Disetujui/Ditolak
+    const sortedPengajuan = (pengajuanData || []).sort((a, b) => {
+      if (a.status === "pending" && b.status !== "pending") return -1;
+      if (a.status !== "pending" && b.status === "pending") return 1;
+      return 0;
+    });
 
-    setPengajuan(pengajuanData || [])
+    setPengajuan(sortedPengajuan)
     setPengelolaList(pengelolaData || [])
     setLoading(false)
   }
@@ -90,7 +97,11 @@ export default function PengajuanPage() {
 
   const handleReject = async (id: number) => {
     setRejectLoading(true)
-    await supabase.from("daftar_destinasi").delete().eq("id", id)
+    // Update status menjadi Ditolak, tidak menghapus data
+    await supabase
+      .from("daftar_destinasi")
+      .update({ status: "Ditolak", is_validated: false })
+      .eq("id", id)
     setRejectLoading(false)
     setRejectDialogOpen(false)
     setSelectedRejectId(null)

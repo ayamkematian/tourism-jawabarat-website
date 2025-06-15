@@ -14,6 +14,49 @@ export default function DetailDestinasi() {
   const [submitError, setSubmitError] = useState("")
   const router = useRouter()
 
+  const lokasiList = [
+    "Kabupaten Bandung",
+    "Kabupaten Bandung Barat",
+    "Kabupaten Bekasi",
+    "Kabupaten Bogor",
+    "Kabupaten Ciamis",
+    "Kabupaten Cianjur",
+    "Kabupaten Cirebon",
+    "Kabupaten Garut",
+    "Kabupaten Indramayu",
+    "Kabupaten Karawang",
+    "Kabupaten Kuningan",
+    "Kabupaten Majalengka",
+    "Kabupaten Pangandaran",
+    "Kabupaten Purwakarta",
+    "Kabupaten Subang",
+    "Kabupaten Sukabumi",
+    "Kabupaten Sumedang",
+    "Kabupaten Tasikmalaya",
+    "Kota Bandung",
+    "Kota Banjar",
+    "Kota Bekasi",
+    "Kota Bogor",
+    "Kota Cimahi",
+    "Kota Cirebon",
+    "Kota Depok",
+    "Kota Sukabumi",
+    "Kota Tasikmalaya"
+  ];
+  const [lokasi, setLokasi] = useState("");
+
+  const kategoriList = [
+    "Wisata Alam",
+    "Wisata Air",
+    "Wisata Sejarah",
+    "Wisata Religi",
+    "Wisata Hiburan",
+    "Wisata Belanja",
+    "Wisata Kuliner",
+    "Wisata Edukasi"
+  ];
+  const [kategori, setKategori] = useState("");
+
   const validatePhotoFile = (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
@@ -29,7 +72,10 @@ export default function DetailDestinasi() {
 
   const handlePhotoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = [...destinationPhotos, ...Array.from(e.target.files)].slice(0, 5);
+      // Validasi setiap file baru
+      const newFiles = Array.from(e.target.files).filter(validatePhotoFile);
+      // Gabungkan dengan file yang sudah ada, maksimal 5 file unik
+      const files = [...destinationPhotos, ...newFiles].slice(0, 5);
       const uniqueFiles = Array.from(new Map(files.map(f => [f.name, f])).values());
       setDestinationPhotos(uniqueFiles);
     }
@@ -60,11 +106,11 @@ export default function DetailDestinasi() {
 
       // 3. Ambil data detail dari form
       const deskripsi = (document.getElementById("deskripsi") as HTMLTextAreaElement)?.value || "";
-      const kategori = (document.getElementById("kategori") as HTMLInputElement)?.value || "";
+      const kategori = (document.getElementById("kategori") as HTMLSelectElement)?.value || "";
       const jambuka = (document.getElementById("jam-buka") as HTMLInputElement)?.value || "";
       const hargatiket = (document.getElementById("harga-tiket") as HTMLInputElement)?.value || "";
       const alamat = (document.getElementById("alamat") as HTMLTextAreaElement)?.value || "";
-      const lokasi = (document.getElementById("lokasi") as HTMLInputElement)?.value || "";
+      const lokasi = (document.getElementById("lokasi") as HTMLSelectElement)?.value || "";
 
       // 4. Gabungkan semua data
       const slug = pendaftaranData.namaTempat
@@ -154,7 +200,18 @@ export default function DetailDestinasi() {
               <Label htmlFor="lokasi" className="text-[#575757]">
                 Lokasi
               </Label>
-              <Input id="lokasi" className="mt-1" placeholder="Bogor, Jawa Barat" />
+              <select
+                id="lokasi"
+                className="mt-1 w-full border rounded px-3 py-2 text-[#575757]"
+                value={lokasi}
+                onChange={e => setLokasi(e.target.value)}
+                required
+              >
+                <option value="">Pilih Lokasi</option>
+                {lokasiList.map((nama, idx) => (
+                  <option key={idx} value={nama}>{nama}</option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="space-y-4">
@@ -162,7 +219,18 @@ export default function DetailDestinasi() {
               <Label htmlFor="kategori" className="text-[#575757]">
                 Kategori
               </Label>
-              <Input id="kategori" className="mt-1" placeholder="Wisata Air" />
+              <select
+                id="kategori"
+                className="mt-1 w-full border rounded px-3 py-2 text-[#575757]"
+                value={kategori}
+                onChange={e => setKategori(e.target.value)}
+                required
+              >
+                <option value="">Pilih Kategori</option>
+                {kategoriList.map((nama, idx) => (
+                  <option key={idx} value={nama}>{nama}</option>
+                ))}
+              </select>
             </div>
             <div>
               <Label className="text-[#575757]">Gambar (5 Foto) </Label>

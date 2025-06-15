@@ -12,6 +12,47 @@ const featuredImages = [
   "/sangyang.jpeg",
 ];
 
+const kategoriList = [
+    "Wisata Alam",
+    "Wisata Air",
+    "Wisata Sejarah",
+    "Wisata Religi",
+    "Wisata Hiburan",
+    "Wisata Belanja",
+    "Wisata Kuliner",
+    "Wisata Edukasi"
+  ];
+
+const lokasiList = [
+  "Kabupaten Bandung",
+  "Kabupaten Bandung Barat",
+  "Kabupaten Bekasi",
+  "Kabupaten Bogor",
+  "Kabupaten Ciamis",
+  "Kabupaten Cianjur",
+  "Kabupaten Cirebon",
+  "Kabupaten Garut",
+  "Kabupaten Indramayu",
+  "Kabupaten Karawang",
+  "Kabupaten Kuningan",
+  "Kabupaten Majalengka",
+  "Kabupaten Pangandaran",
+  "Kabupaten Purwakarta",
+  "Kabupaten Subang",
+  "Kabupaten Sukabumi",
+  "Kabupaten Sumedang",
+  "Kabupaten Tasikmalaya",
+  "Kota Bandung",
+  "Kota Banjar",
+  "Kota Bekasi",
+  "Kota Bogor",
+  "Kota Cimahi",
+  "Kota Cirebon",
+  "Kota Depok",
+  "Kota Sukabumi",
+  "Kota Tasikmalaya"
+];
+
 export default function Home() {
   const [destinasiList, setDestinasiList] = useState<any[]>([]);
   const [error, setError] = useState("");
@@ -19,6 +60,8 @@ export default function Home() {
   const DESTINASI_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [selectedKategori, setSelectedKategori] = useState("");
+  const [selectedLokasi, setSelectedLokasi] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -43,7 +86,9 @@ export default function Home() {
   }, []);
 
   const filteredDestinasi = destinasiList.filter((destinasi) =>
-    destinasi.nama.toLowerCase().includes(search.toLowerCase())
+    destinasi.nama.toLowerCase().includes(search.toLowerCase()) &&
+    (selectedKategori === "" || destinasi.kategori === selectedKategori) &&
+    (selectedLokasi === "" || destinasi.lokasi === selectedLokasi)
   );
 
   // Pagination logic
@@ -110,30 +155,48 @@ export default function Home() {
 
       {/* Search Section */}
       <div className="container mx-auto px-4 py-2 flex flex-wrap gap-2 mb-2">
-        <div className="flex items-center border border-gray-300 rounded-full px-4 py-1">
-          <span className="text-sm">Wisata</span>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </div>
-        <div className="flex items-center border border-gray-300 rounded-full px-4 py-1">
-          <span className="text-sm">Kota/Kab</span>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        </div>
-        <div className="relative flex-grow">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1); // Reset ke halaman 1 saat search berubah
-            }}
-            className="w-full border border-gray-300 rounded-full px-4 py-1 pr-10"
-          />
-          <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-            <Search className="w-5 h-5" />
-          </button>
-        </div>
+      <select
+        className="border border-gray-300 rounded-full px-4 py-1 text-sm"
+        value={selectedKategori}
+        onChange={e => {
+          setSelectedKategori(e.target.value);
+          setCurrentPage(1);
+        }}
+      >
+        <option value="">Kategori</option>
+        {kategoriList.map((kategori, idx) => (
+          <option key={idx} value={kategori}>{kategori}</option>
+        ))}
+      </select>
+      <select
+        className="border border-gray-300 rounded-full px-4 py-1 text-sm"
+        value={selectedLokasi}
+        onChange={e => {
+          setSelectedLokasi(e.target.value);
+          setCurrentPage(1);
+        }}
+      >
+        <option value="">Kota/Kab</option>
+        {lokasiList.map((lokasi, idx) => (
+          <option key={idx} value={lokasi}>{lokasi}</option>
+        ))}
+      </select>
+      <div className="relative flex-grow">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1); // Reset ke halaman 1 saat search berubah
+          }}
+          className="w-full border border-gray-300 rounded-full px-4 py-1 pr-10"
+        />
+        <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+          <Search className="w-5 h-5" />
+        </button>
       </div>
+    </div>
 
       {/* Featured Destinations */}
       <div
