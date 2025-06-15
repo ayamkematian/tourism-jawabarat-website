@@ -1,0 +1,153 @@
+"use client"
+
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { Share2, Calendar } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { supabase } from "@/lib/supabaseClient"
+
+export default function IsiberitaClient() {
+  const [artikel, setArtikel] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
+
+  useEffect(() => {
+    const fetchArtikel = async () => {
+      if (!id) return
+      setLoading(true)
+      const { data } = await supabase.from("artikel").select("*").eq("id", id).eq("status", "published").single()
+      setArtikel(data)
+      setLoading(false)
+    }
+    fetchArtikel()
+  }, [id])
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>
+  }
+  if (!artikel) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Artikel tidak ditemukan atau belum dipublikasikan.</div>
+  }
+
+  return (
+    <div className="min-h-screen bg-[#fafafa]">
+      <head><link rel="icon" href="/tic.png" /></head>
+      {/* Navigation Bar */}
+      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
+        <div className="flex items-center">
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
+          <div className="border-l-2 border-teal-600 pl-2">
+            <Link href="/" className="text-[#008275] font-semibold">Tourism Information Center</Link>
+          </div>
+        </div>
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/profile" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Profile
+          </Link>
+          <Link href="/berita" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Berita
+          </Link>
+          <Link href="/destinasi" className="font-semibold text-[#4a4a4a] hover:text-[#008275]">
+            Destinasi Wisata
+          </Link>
+          <Link href="/login" className="bg-teal-600 text-white px-4 py-2 hover:bg-[#006e67] rounded-md font-semibold">
+            Masuk
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative h-[400px] bg-gradient-to-r from-black/70 to-black/50">
+        {artikel.gambar ? (
+          <Image
+            src={artikel.gambar}
+            alt={artikel.judul}
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-200 opacity-30" />
+        )}
+        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-white max-w-2xl">
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
+              {artikel.judul}
+            </h1>
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex items-center space-x-2 text-[#b4b4b4]">
+                <Calendar className="w-4 h-4" />
+                <span>{new Date(artikel.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
+              </div>
+            </div>
+            <Button className="bg-[#008275] hover:bg-[#02a191] text-white px-6 py-2">
+              <Share2 className="w-4 h-4 mr-2" />
+              Bagikan Postingan
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col xl:flex-row gap-8">
+          {/* Article Content */}
+          <div className="xl:w-2/3 flex-1">
+            {artikel.gambar && (
+              <div className="mb-6">
+                <Image
+                  src={artikel.gambar}
+                  alt={artikel.judul}
+                  width={800}
+                  height={400}
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
+            )}
+
+            {/* Article Text */}
+            <div className="prose prose-gray max-w-none">
+              {artikel.konten?.split("\n").map((p: string, i: number) => (
+                <p key={i} className="text-[#363636] leading-relaxed mb-4">{p}</p>
+              ))}
+              <p className="text-[#363636] leading-relaxed mt-8">
+                <strong>Penulis:</strong> {artikel.author_name || "-"}
+              </p>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Berita Lain */}
+          <div className="xl:w-1/3 w-full">
+            <div className="sticky top-8">
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold text-[#363636] mb-6">Berita Lain</h3>
+                <div className="space-y-6">
+                  {[1, 2, 3].map((item) => (
+                    <div key={item} className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
+                      <div className="bg-[#f5f5f5] rounded-lg p-4">
+                        <h4 className="font-medium text-[#363636] mb-2 leading-tight text-sm">
+                          Festival Topeng Cirebon 2025 Banjir Apresiasi, dari ...
+                        </h4>
+                        <p className="text-xs text-[#909090] mb-3 line-clamp-2">
+                          CIREBON - Pemerintah Daerah Kota Cirebon melalui Dinas Kebudayaan dan ...
+                        </p>
+                        <div className="flex items-center text-xs text-[#939393]">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          <span>Rabu, 30 April 2025</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
