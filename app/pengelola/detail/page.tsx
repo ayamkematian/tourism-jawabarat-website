@@ -57,6 +57,41 @@ export default function DetailDestinasi() {
   ];
   const [kategori, setKategori] = useState("");
 
+  const [pendaftaranData, setPendaftaranData] = useState<any>(null);
+  const [ktpBase64, setKtpBase64] = useState<string | null>(null);
+  const [aktaBase64, setAktaBase64] = useState<string | null>(null);
+  const [sertifikatBase64, setSertifikatBase64] = useState<string | null>(null);
+  const [izinBase64, setIzinBase64] = useState<string | null>(null);
+  const [laporanBase64, setLaporanBase64] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Ambil data pendaftaran dari localStorage
+    const data = localStorage.getItem("pendaftaranData");
+    if (data) {
+      const parsed = JSON.parse(data);
+      setPendaftaranData(parsed);
+      setKtpBase64(parsed.ktp || null);
+      setAktaBase64(parsed.akta || null);
+      setSertifikatBase64(parsed.sertifikat || null);
+      setIzinBase64(parsed.izin || null);
+      setLaporanBase64(parsed.laporan || null);
+    }
+  }, []);
+
+  // Fungsi konversi base64 ke File
+  function base64ToFile(base64: string, filename: string): File {
+    const arr = base64.split(",");
+    const match = arr[0].match(/:(.*?);/);
+    const mime = match ? match[1] : "application/octet-stream";
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
+
   const validatePhotoFile = (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
@@ -83,26 +118,24 @@ export default function DetailDestinasi() {
 
   const handleSubmit = async () => {
     setSubmitError("");
-    if (destinationPhotos.length === 0) {
-      setSubmitError("Silakan upload minimal 1 foto destinasi.");
-      return;
-    }
     setSubmitLoading(true);
     try {
-      
-      // 1. Ambil data pendaftaran dari localStorage
-      const pendaftaranData = JSON.parse(localStorage.getItem("pendaftaranData") || "{}");
-      
-      // 2. Upload foto destinasi ke bucket
-      const uploadedPhotoUrls: string[] = [];
-      for (const file of destinationPhotos) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `destinasi-${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('foto-destinasi').upload(fileName, file);
+      // Upload file ke Supabase Storage
+      const uploadAndGetUrl = async (base64: string | null, bucket: string, filename: string) => {
+        if (!base64) return "";
+        const file = base64ToFile(base64, filename);
+        const fileExt = filename.split('.').pop();
+        const uniqueName = `${bucket}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from(bucket).upload(uniqueName, file);
         if (uploadError) throw uploadError;
-        const { data } = supabase.storage.from('foto-destinasi').getPublicUrl(fileName);
-        uploadedPhotoUrls.push(data.publicUrl);
-      }
+        const { data } = supabase.storage.from(bucket).getPublicUrl(uniqueName);
+        return data.publicUrl;
+      };
+      const ktpUrl = await uploadAndGetUrl(ktpBase64, "foto-ktp", "ktp.jpg");
+      const aktaUrl = await uploadAndGetUrl(aktaBase64, "foto-akte-pendirian-usaha", "akta.jpg");
+      const sertifikatUrl = await uploadAndGetUrl(sertifikatBase64, "foto-sertifikat-tanah", "sertifikat.jpg");
+      const izinUrl = await uploadAndGetUrl(izinBase64, "foto-surat-izin", "izin.jpg");
+      const laporanUrl = await uploadAndGetUrl(laporanBase64, "foto-laporan-keuangan", "laporan.jpg");
 
       // 3. Ambil data detail dari form
       const deskripsi = (document.getElementById("deskripsi") as HTMLTextAreaElement)?.value || "";
@@ -129,14 +162,15 @@ export default function DetailDestinasi() {
       // 6. Insert ke tabel daftar_destinasi SEKALI SAJA
       const { error: insertError } = await supabase.from("daftar_destinasi").insert([
         {
-          nama: pendaftaranData.namaTempat,
-          nibu: pendaftaranData.nomorInduk,
-          npwp: pendaftaranData.npwp,
-          ktp: pendaftaranData.ktp,
-          akta: pendaftaranData.akta,
-          sertifikat: pendaftaranData.sertifikat,
-          izin: pendaftaranData.izin,
-          laporan: pendaftaranData.laporan,
+          nama: pendaftaranData?.namaTempat || "",
+          slug,
+          nibu: pendaftaranData?.nomorInduk || "",
+          npwp: pendaftaranData?.npwp || "",
+          ktp: ktpUrl,
+          akta: aktaUrl,
+          sertifikat: sertifikatUrl,
+          izin: izinUrl,
+          laporan: laporanUrl,
           deskripsi,
           kategori,
           jambuka,
@@ -144,12 +178,20 @@ export default function DetailDestinasi() {
           alamat,
           lokasi,
           pengelola_id: pengelolaId,
-          fotourl: uploadedPhotoUrls,
-          slug,
+          fotourl: destinationPhotos.length > 0 ? destinationPhotos.map((file) => URL.createObjectURL(file)) : [],
           status: "pending",
         },
       ]);
       if (insertError) throw insertError;
+
+      // Kirim notifikasi ke admin
+      await supabase.from("notifikasii").insert({
+        user_email: null,
+        role: "admin",
+        pesan: `Pengajuan destinasi baru: "${pendaftaranData?.namaTempat}" oleh pengelola`,
+        waktu: new Date().toISOString(),
+        status: "unread"
+      });
 
       alert("Pendaftaran destinasi berhasil!");
       setDestinationPhotos([]);

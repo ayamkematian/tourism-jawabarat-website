@@ -7,14 +7,6 @@ import { supabase } from "../../../lib/supabaseClient";
 import { Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-async function uploadToBucket(bucket: string, file: File) {
-  const filePath = `${Date.now()}_${file.name}`;
-  const { error } = await supabase.storage.from(bucket).upload(filePath, file, { upsert: true });
-  if (error) throw error;
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return data.publicUrl;
-}
-
 export default function PendaftaranDestinasi() {
   const [namaTempat, setNamaTempat] = useState("");
   const [nomorInduk, setNomorInduk] = useState("");
@@ -59,30 +51,51 @@ export default function PendaftaranDestinasi() {
   };
 
   const handleSaveAndContinue = async () => {
-    setWarning("");
+    if (!namaTempat || !nomorInduk || !npwp) {
+      setWarning("Semua data wajib diisi.");
+      return;
+    }
     try {
-      // Upload file ke bucket sesuai jenis
-      const ktpUrl = ktpFile ? await uploadToBucket("foto-ktp", ktpFile) : "";
-      const aktaUrl = aktaFile ? await uploadToBucket("foto-akte-pendirian-usaha", aktaFile) : "";
-      const sertifikatUrl = sertifikatFile ? await uploadToBucket("foto-sertifikat-tanah", sertifikatFile) : "";
-      const izinUrl = izinFile ? await uploadToBucket("foto-surat-izin", izinFile) : "";
-      const laporanUrl = laporanFile ? await uploadToBucket("foto-laporan-keuangan", laporanFile) : "";
-
+      setWarning("");
+      // Konversi file ke base64
+      const fileToBase64 = (file: File | null) => {
+        return new Promise<string | null>((resolve) => {
+          if (!file) return resolve(null);
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(file);
+        });
+      };
+      const ktpBase64 = await fileToBase64(ktpFile);
+      const aktaBase64 = await fileToBase64(aktaFile);
+      const sertifikatBase64 = await fileToBase64(sertifikatFile);
+      const izinBase64 = await fileToBase64(izinFile);
+      const laporanBase64 = await fileToBase64(laporanFile);
       // Simpan data ke localStorage
-      const pendaftaranData = {
+      localStorage.setItem("pendaftaranData", JSON.stringify({
         namaTempat,
         nomorInduk,
         npwp,
-        ktp: ktpUrl,
-        akta: aktaUrl,
-        sertifikat: sertifikatUrl,
-        izin: izinUrl,
-        laporan: laporanUrl,
-      };
-      localStorage.setItem("pendaftaranData", JSON.stringify(pendaftaranData));
+        ktp: ktpBase64,
+        akta: aktaBase64,
+        sertifikat: sertifikatBase64,
+        izin: izinBase64,
+        laporan: laporanBase64,
+      }));
+      alert("Data berhasil disimpan. Silakan lengkapi detail destinasi.");
       router.push("/pengelola/detail");
-    } catch (err: any) {
-      setWarning(err.message || "Gagal upload data/file.");
+    } catch (err) {
+      let errorMsg = "";
+      if (err instanceof Error) {
+        errorMsg = err.message;
+      } else if (typeof err === "object" && err !== null && "message" in err) {
+        errorMsg = (err as any).message;
+      } else {
+        errorMsg = JSON.stringify(err);
+      }
+      setWarning("Gagal menyimpan data: " + errorMsg);
+      console.error("Save error:", err);
     }
   };
 

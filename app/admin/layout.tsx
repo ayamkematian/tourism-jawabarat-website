@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -15,7 +16,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog"
-import { ChevronDown, LayoutDashboard, FileText, MapPin, PlusCircle, List } from "lucide-react"
+import { ChevronDown, LayoutDashboard, FileText, MapPin, PlusCircle, List, Users } from "lucide-react"
 
 export default function AdminLayout({
   children,
@@ -50,8 +51,9 @@ export default function AdminLayout({
 
     const fetchNotifikasi = async () => {
       const { data } = await supabase
-        .from("notifikasi")
+        .from("notifikasii")
         .select("*")
+        .eq("role", "admin")
         .order("waktu", { ascending: false })
         .limit(10)
       setNotifikasi(data || [])
@@ -94,7 +96,13 @@ export default function AdminLayout({
       label: "List Artikel",
       description: "Kelola artikel yang dipublish",
     },
-  ]
+    {
+      href: "/admin/registrasi",
+      icon: Users,
+      label: "Daftarkan Admin",
+      description: "Tambah admin baru",
+    },
+    ]
 
   return (
     <div

@@ -14,6 +14,7 @@ export default function DaftarPengelola() {
   const [repeatPassword, setRepeatPassword] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
+  const [nik, setNik] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,12 +25,26 @@ export default function DaftarPengelola() {
       setErrorMessage("Semua field wajib diisi.")
       return
     }
+    if (nik.length !== 16) {
+      setErrorMessage("NIK harus 16 digit.")
+      return
+    }
     if (password !== repeatPassword) {
       setErrorMessage("Password dan Repeat Password tidak sama.")
       return
     }
 
     try {
+        // Cek apakah NIK sudah terdaftar
+        const { data: nikExist } = await supabase
+        .from("users")
+        .select("nik")
+        .eq("nik", nik)
+        .single()
+      if (nikExist) {
+        setErrorMessage("NIK sudah terdaftar.")
+        return
+      }
       // Cek apakah email sudah terdaftar
       const { data: existing } = await supabase
         .from("users")
@@ -43,7 +58,7 @@ export default function DaftarPengelola() {
       const hash = await bcrypt.hash(password, 10)
       const { error: insertError } = await supabase
         .from("users")
-        .insert([{ email, password: hash, namalengkap: nama, role: "pengelola" }])
+        .insert([{ email, password: hash, namalengkap: nama, nik, role: "pengelola" }])
       if (insertError) {
         setErrorMessage("Terjadi kesalahan pada server.")
         return
@@ -51,6 +66,7 @@ export default function DaftarPengelola() {
       setSuccessMessage("Pendaftaran berhasil! Silakan login.")
       setNama("")
       setEmail("")
+      setNik("")
       setPassword("")
       setRepeatPassword("")
     } catch (error) {
@@ -80,6 +96,27 @@ export default function DaftarPengelola() {
                 required
               />
             </div>
+
+            <div className="space-y-2">
+            <label htmlFor="nik" className="block text-sm">
+              NIK:
+            </label>
+            <input
+              id="nik"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={16}
+              value={nik}
+              onChange={e => {
+                // Hanya angka, maksimal 16 digit
+                const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 16);
+                setNik(val);
+              }}
+              className="w-full p-2 rounded bg-[#b7dfdb]/20 border border-[#b7dfdb]/30 text-white placeholder-white/70"
+              required
+            />
+          </div>
 
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm">
@@ -154,6 +191,14 @@ export default function DaftarPengelola() {
             </button>
           </form>
 
+        </div>
+        <div className="mt-4">
+          <Link
+            href="/"
+            className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
+          >
+            Kembali ke Menu Utama
+          </Link>
         </div>
         <p className="mt-4 text-center text-white">
           Sudah punya akun?{' '}

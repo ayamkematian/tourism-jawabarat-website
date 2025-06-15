@@ -100,29 +100,16 @@ export default function Login() {
             </button>
           </form>
 
-
-          <div className="mt-6">
-            <Link
-              href="/daftar"
-              className="block text-center py-2 border border-[#b7dfdb]/30 rounded hover:bg-[#b7dfdb]/10 transition-colors text-sm"
-            >
-              Belum punya akun?{" "}
-              <span className="text-green-600 underline hover:text-green-700">
-              Mendaftar
-              </span>
-            </Link>
-          </div>
-
         </div>
 
         <div className="mt-4">
-        <Link
-          href="/"
-          className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
-        >
-          Kembali ke Menu Utama
-        </Link>
-      </div>
+          <Link
+            href="/"
+            className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
+          >
+            Kembali ke Menu Utama
+          </Link>
+        </div>
 
       </div>
     </div>
