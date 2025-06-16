@@ -154,7 +154,7 @@ export default function AdminLayout({
           )}
           <div className="relative">
             <button
-              className="flex items-center gap-2 focus:outline-none"
+              className="flex items-center gap-flex focus:outline-none"
               onClick={() => setShowMenu((v) => !v)}
               title="Menu Admin"
               type="button"
