@@ -102,6 +102,15 @@ export default function Login() {
 
         </div>
 
+        <div className="mt-4 text-center">
+          <Link
+            href="/daftar"
+            className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
+          >
+            Belum Memiliki Akun? Daftar
+          </Link>
+        </div>
+
         <div className="mt-4">
           <Link
             href="/"
