@@ -3,10 +3,13 @@ import Image from "next/image"
 import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { getDatabase, ref, child, get } from "firebase/database"
+import { getDatabase, ref, child, get, onValue, off } from "firebase/database"
 import firebaseApp from "@/backend/firebase-sdk"
 import { supabase } from "@/lib/supabaseClient"
 import React from "react"
+import dynamic from "next/dynamic"
+const {format} = require("date-fns")
+const Chart = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), { ssr: false })
 
 export default function DestinasiPage({ params }: { params: Promise<{ nama: string }> }) {
   const { nama } = React.use(params)
@@ -19,59 +22,61 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
   const [rainStatus, setRainStatus] = useState<string | null>(null)
   const [humidity, setHumidity] = useState<number | null>(null)
   const [temperature, setTemperature] = useState<number | null>(null)
+  const [densityPercent, setDensityPercent] = useState<number | null>(null)
   const rainPercent = rainStatus === "hujan" ? 100 : 0
+  const [sensorHistory, setSensorHistory] = useState<any>({})
+  const [chartData, setChartData] = useState<any>(null)
 
-  // Ambil data kepadatan dari Firebase
-  const getValue = async () => {
-    try {
-      const database = getDatabase(firebaseApp)
-      const rootReference = ref(database)
-      // Gunakan nama untuk path dinamis
-      const dbGet = await get(child(rootReference, `raspberry_data/${nama}/PeopleInside`))
-      const dbValue = dbGet.val()
-      setDensity(dbValue)
-      console.log("Density:", dbValue)
-    } catch (error) {
-      console.error("Firebase DB Error:", error)
-    }
-  }
-
-  // Ambil data cuaca berdasarkan Firebase
+  // Listener dinamis untuk PeopleInside dan Sensor
   useEffect(() => {
-    getWeatherValue()
-  }, [])
-  const getWeatherValue = async () => {
-    try {
-      const database = getDatabase(firebaseApp)
-      const rootReference = ref(database)
-      // Gunakan nama untuk path dinamis
-      const snapshot = await get(child(rootReference, `Sensor/${nama}`))
+    if (!destinasi) return
+
+    const database = getDatabase(firebaseApp)
+    const peopleRef = ref(database, `raspberry_data/${nama}/PeopleInside`)
+    const sensorRef = ref(database, `Sensor/${nama}`)
+
+    // Listener PeopleInside
+    const peopleListener = onValue(peopleRef, (snapshot) => {
+      const dbValue = snapshot.val()
+      setDensity(dbValue)
+      if (destinasi.pengunjung_max) {
+        const percent = Math.round((dbValue / destinasi.pengunjung_max) * 100)
+        setDensityPercent(percent)
+      }
+    })
+
+    // Listener Sensor (suhu, kelembapan, hujan)
+    const sensorListener = onValue(sensorRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val()
         setHumidity(data.Humidity)
         setTemperature(data.Temperature)
         setRainStatus(data.Rain_Status)
-        console.log("Firebase data:", data)
-      } else {
-        console.warn(`No data found at Sensor/${nama}`)
       }
-    } catch (error) {
-      console.error("Firebase DB Error:", error)
-    }
-  }
+    })
 
-  const getKepadatanStatus = (value: number) => {
-    if (value > 3) return "Sangat Padat"
-    if (value > 2) return "Padat"
-    if (value > 1) return "Renggang"
+    // Cleanup listener saat unmount
+    return () => {
+      off(peopleRef)
+      off(sensorRef)
+    }
+  }, [destinasi, nama])
+
+  // Status kepadatan berdasarkan persentase
+  const getDensityStatus = (percent: number | null) => {
+    if (percent === null) return "-"
+    if (percent > 80) return "Sangat Padat"
+    if (percent > 60) return "Padat"
+    if (percent > 30) return "Renggang"
     return "Sepi"
   }
-
-  const getDensityColor = (value: number) => {
-    if (value > 3) return "bg-red-500/20 text-[#952020]" // Sangat Padat
-    if (value > 2) return "bg-orange-400/20 text-orange-700" // Padat
-    if (value > 1) return "bg-yellow-200 text-yellow-800" // Renggang
-    return "bg-green-200 text-green-800" // Sepi
+  // Warna status kepadatan
+  const getDensityColor = (percent: number | null) => {
+    if (percent === null) return "bg-gray-200 text-gray-500"
+    if (percent > 80) return "bg-red-500/20 text-[#952020]"
+    if (percent > 60) return "bg-orange-400/20 text-orange-700"
+    if (percent > 30) return "bg-yellow-200 text-yellow-800"
+    return "bg-green-200 text-green-800"
   }
 
   const getDensityLabel = (value: number) => {
@@ -80,34 +85,9 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     if (value > 1) return "Renggang"
     return "Sepi"
   }
+
+  // Ambil data destinasi dari Supabase
   useEffect(() => {
-    getValue()
-  }, [])
-
-  useEffect(() => {
-    const getDensityValue = async () => {
-      try {
-        const database = getDatabase(firebaseApp)
-        const rootReference = ref(database)
-        const snapshot = await get(child(rootReference, `raspberry_data/${nama}/PeopleInside`))
-
-        if (snapshot.exists()) {
-          const dbValue = snapshot.val()
-          console.log("Density:", dbValue)
-          // Kamu bisa set state di sini kalau perlu
-        } else {
-          console.warn(`No data found at raspberry_data/${nama}/PeopleInside`)
-        }
-      } catch (err) {
-        console.error("Firebase DB Error:", err)
-      }
-    }
-
-    getDensityValue()
-  }, [])
-
-  useEffect(() => {
-    // Ambil data destinasi dari Supabase
     const fetchDestinasi = async () => {
       try {
         const { data, error } = await supabase
@@ -184,21 +164,18 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
           {/* Map */}
           <div className="bg-[#fafafa] rounded-lg p-4 h-[300px] relative">
             <div
-              className={`absolute inset-0 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                density !== null ? getDensityColor(density) : "bg-gray-200 text-gray-500"
+              className={`absolute inset-0 rounded-lg flex flex-col items-center justify-center transition-all duration-300 ${
+                getDensityColor(densityPercent)
               }`}
             >
               <span className="font-bold text-xl">
-                {density === null
-                  ? "Memuat..."
-                  : density > 4
-                    ? "Sangat Padat"
-                    : density > 3
-                      ? "Padat"
-                      : density > 2
-                        ? "Senggang"
-                        : "Sepi"}
+                {densityPercent === null ? "Memuat..." : getDensityStatus(densityPercent)}
               </span>
+              {density !== null && destinasi?.pengunjung_max && (
+                <span className="text-sm mt-2">
+                  {density} / {destinasi.pengunjung_max} pengunjung ({densityPercent}%)
+                </span>
+              )}
             </div>
           </div>
 
