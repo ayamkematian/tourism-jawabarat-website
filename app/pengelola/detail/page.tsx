@@ -155,7 +155,8 @@ export default function DetailDestinasi() {
       const deskripsi = (document.getElementById("deskripsi") as HTMLTextAreaElement)?.value || "";
       const kategori = (document.getElementById("kategori") as HTMLSelectElement)?.value || "";
       const jambuka = (document.getElementById("jam-buka") as HTMLInputElement)?.value || "";
-      const hargatiket = (document.getElementById("harga-tiket") as HTMLInputElement)?.value || "";
+      const hargatiketStr = (document.getElementById("harga-tiket") as HTMLInputElement)?.value || "";
+      const hargatiket = hargatiketStr === "" ? null : parseInt(hargatiketStr, 10);
       const alamat = (document.getElementById("alamat") as HTMLTextAreaElement)?.value || "";
       const lokasi = (document.getElementById("lokasi") as HTMLSelectElement)?.value || "";
 
@@ -245,7 +246,7 @@ export default function DetailDestinasi() {
               <Label htmlFor="harga-tiket" className="text-[#575757]">
                 Harga Tiket
               </Label>
-              <Input id="harga-tiket" className="mt-1" placeholder="Rp 25.000" />
+              <Input id="harga-tiket" type="number" min={0} className="mt-1" placeholder="25000" />
             </div>
             <div>
               <Label htmlFor="alamat" className="text-[#575757]">

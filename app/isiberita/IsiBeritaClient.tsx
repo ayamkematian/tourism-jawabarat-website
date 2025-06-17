@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabaseClient"
 
 export default function IsiberitaClient() {
   const [artikel, setArtikel] = useState<any>(null)
+  const [beritaLain, setBeritaLain] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
@@ -22,7 +23,19 @@ export default function IsiberitaClient() {
       setArtikel(data)
       setLoading(false)
     }
+    const fetchBeritaLain = async () => {
+      if (!id) return
+      const { data } = await supabase
+        .from("artikel")
+        .select("id, judul, excerpt, created_at, gambar")
+        .eq("status", "published")
+        .neq("id", id)
+        .order("created_at", { ascending: false })
+        .limit(3)
+      setBeritaLain(data || [])
+    }
     fetchArtikel()
+    fetchBeritaLain()
   }, [id])
 
   if (loading) {
@@ -126,22 +139,31 @@ export default function IsiberitaClient() {
               <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold text-[#363636] mb-6">Berita Lain</h3>
                 <div className="space-y-6">
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-                      <div className="bg-[#f5f5f5] rounded-lg p-4">
-                        <h4 className="font-medium text-[#363636] mb-2 leading-tight text-sm">
-                          Festival Topeng Cirebon 2025 Banjir Apresiasi, dari ...
-                        </h4>
-                        <p className="text-xs text-[#909090] mb-3 line-clamp-2">
-                          CIREBON - Pemerintah Daerah Kota Cirebon melalui Dinas Kebudayaan dan ...
-                        </p>
-                        <div className="flex items-center text-xs text-[#939393]">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          <span>Rabu, 30 April 2025</span>
+                  {beritaLain.length === 0 ? (
+                    <div className="text-gray-400 text-sm">Tidak ada berita lain.</div>
+                  ) : (
+                    beritaLain.map((item) => (
+                      <Link
+                        key={item.id}
+                        href={`/isiberita?id=${item.id}`}
+                        className="block border-b border-gray-100 pb-4 last:border-b-0 last:pb-0 hover:bg-gray-50 rounded-lg transition"
+                      >
+                        <div className="flex gap-3 items-start bg-[#f5f5f5] rounded-lg p-4">
+                          {item.gambar && (
+                            <img src={item.gambar} alt={item.judul} className="w-16 h-12 object-cover rounded mr-2" />
+                          )}
+                          <div className="flex-1">
+                            <h4 className="font-medium text-[#363636] mb-2 leading-tight text-sm line-clamp-2">{item.judul}</h4>
+                            <p className="text-xs text-[#909090] mb-3 line-clamp-2">{item.excerpt}</p>
+                            <div className="flex items-center text-xs text-[#939393]">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              <span>{new Date(item.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      </Link>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

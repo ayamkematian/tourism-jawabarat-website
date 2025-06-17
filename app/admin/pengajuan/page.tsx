@@ -88,6 +88,22 @@ export default function PengajuanPage() {
         pengunjung_max: pengajuanItem.pengunjung_max,
       }
       await supabase.from("destinasi").insert(destinasiData)
+
+      // Kirim notifikasi ke pengelola
+      // Ambil email pengelola dari tabel users
+      const { data: pengelolaData } = await supabase
+        .from("users")
+        .select("email")
+        .eq("id", pengajuanItem.pengelola_id)
+        .single();
+      if (pengelolaData?.email) {
+        await supabase.from("notifikasii").insert({
+          user_email: pengelolaData.email,
+          pesan: `Pengajuan destinasi \"${pengajuanItem.nama}\" telah DISETUJUI.`,
+          waktu: new Date().toISOString(),
+          status: "unread"
+        });
+      }
     }
 
     setAcceptLoading(false)
@@ -98,10 +114,32 @@ export default function PengajuanPage() {
 
   const handleReject = async (id: number) => {
     setRejectLoading(true)
-    // Update status menjadi Ditolak, tidak menghapus data
+    // Update status menjadi Ditolak
     await supabase
       .from("daftar_destinasi")
       .update({ status: "Ditolak", is_validated: false })
+      .eq("id", id)
+    // Kirim notifikasi ke pengelola
+    const pengajuanItem = pengajuan.find((item) => item.id === id)
+    if (pengajuanItem) {
+      const { data: pengelolaData } = await supabase
+        .from("users")
+        .select("email")
+        .eq("id", pengajuanItem.pengelola_id)
+        .single();
+      if (pengelolaData?.email) {
+        await supabase.from("notifikasii").insert({
+          user_email: pengelolaData.email,
+          pesan: `Pengajuan destinasi \"${pengajuanItem.nama}\" telah DITOLAK dan dihapus dari daftar pengajuan.`,
+          waktu: new Date().toISOString(),
+          status: "unread"
+        });
+      }
+    }
+    // Hapus data pengajuan dari daftar_destinasi
+    await supabase
+      .from("daftar_destinasi")
+      .delete()
       .eq("id", id)
     setRejectLoading(false)
     setRejectDialogOpen(false)
