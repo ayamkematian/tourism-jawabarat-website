@@ -94,13 +94,13 @@ export default function DetailDestinasi() {
   }
 
   const validatePhotoFile = (file: File) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       alert("File harus berupa jpg, jpeg, atau png.");
       return false;
     }
-    if (file.size > 1024 * 1024) {
-      alert("Ukuran file maksimal 1MB.");
+    if (file.size > 5120 * 5120) {
+      alert("Ukuran file maksimal 5MB.");
       return false;
     }
     return true;
