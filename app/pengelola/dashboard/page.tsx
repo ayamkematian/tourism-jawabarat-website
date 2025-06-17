@@ -2,10 +2,18 @@
 import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
-import { Clock, MapPin } from "lucide-react"
+import { Clock, MapPin, Bell } from "lucide-react"
 import { supabase } from "../../../lib/supabaseClient"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu"
 
 interface Destination {
   id: string
@@ -93,31 +101,40 @@ export default function PengelolaDashboardPage() {
     <div className="min-h-screen bg-[#fafafa]">
       <div className="flex-1 p-2 sm:p-4 md:p-6 bg-[#eaeaea]">
         <div className="bg-[#ffffff] rounded-lg p-2 sm:p-4 md:p-6 max-w-flex mx-auto w-full">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#000000] mb-2">Dashboard</h1>
-          <p className="text-[#575757] mb-4 sm:mb-6 text-sm sm:text-base">Selamat Datang di Dashboard Pengelola Wisata</p>
-
-          {/* Notifikasi */}
-          {notifikasi.length > 0 && (
-            <div className="mb-6">
-              <h2 className="font-semibold text-[#008275] mb-2">Notifikasi</h2>
-              <ul className="space-y-2">
-                {notifikasi.map((notif) => (
-                  <li
-                    key={notif.id}
-                    className={`p-3 rounded border ${notif.status === "unread" ? "bg-[#e6f7f4] border-[#00a38f]" : "bg-gray-100 border-gray-200"}`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-[#222]">{notif.pesan}</span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {notif.waktu ? new Date(notif.waktu).toLocaleString("id-ID") : ""}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-[#000000]">Dashboard</h1>
+              <p className="text-[#575757] text-sm sm:text-base">Selamat Datang di Dashboard Pengelola Wisata</p>
             </div>
-          )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none">
+                  <Bell className="w-6 h-6 text-[#008275]" />
+                  {notifikasi.length > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
+                <DropdownMenuLabel>Notifikasi</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {notifikasi.length === 0 ? (
+                  <DropdownMenuItem className="text-gray-500">Tidak ada notifikasi</DropdownMenuItem>
+                ) : (
+                  notifikasi.map((notif) => (
+                    <DropdownMenuItem key={notif.id} className={notif.status === "unread" ? "bg-[#e6f7f4]" : ""}>
+                      <div className="flex flex-col w-full">
+                        <span className="text-sm text-[#222]">{notif.pesan}</span>
+                        <span className="text-xs text-gray-500 mt-1">{notif.waktu ? new Date(notif.waktu).toLocaleString("id-ID") : ""}</span>
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
+          {/* Daftar Destinasi */}
           <div className="flex flex-col sm:flex-row gap-2 justify-end mb-4">
             <Button
               onClick={() => setShowList((v) => !v)}

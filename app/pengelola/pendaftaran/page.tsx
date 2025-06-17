@@ -72,6 +72,7 @@ export default function PendaftaranDestinasi() {
       const sertifikatBase64 = await fileToBase64(sertifikatFile);
       const izinBase64 = await fileToBase64(izinFile);
       const laporanBase64 = await fileToBase64(laporanFile);
+      
       // Simpan data ke localStorage
       localStorage.setItem("pendaftaranData", JSON.stringify({
         namaTempat,

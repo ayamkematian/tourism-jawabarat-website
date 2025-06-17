@@ -1,12 +1,15 @@
+"use client"
 import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 
 export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <div className="min-h-screen bg-white text-[#2d2d2d]">
       <head><link rel="icon" href="/tic.png" /></head>
       {/* Navigation Bar */}
-      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
+      <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8 relative">
         <div className="flex items-center">
           <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
           <div className="border-l-2 border-teal-600 pl-2">
@@ -27,9 +30,31 @@ export default function Home() {
             Masuk
           </Link>
         </div>
-        <button className="md:hidden bg-teal-600 text-white px-4 py-2 hover:bg-[#006e67] rounded-md font-semibold">
-          Menu
-        </button>
+        <div className="md:hidden relative">
+          <button
+            className="bg-teal-600 text-white px-4 py-2 hover:bg-[#006e67] rounded-md font-semibold"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Buka menu"
+          >
+            Menu
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 flex flex-col text-left border">
+              <Link href="/profile" className="px-4 py-2 hover:bg-teal-50 text-[#4a4a4a] font-semibold" onClick={() => setMenuOpen(false)}>
+                Profile
+              </Link>
+              <Link href="/berita" className="px-4 py-2 hover:bg-teal-50 text-[#4a4a4a] font-semibold" onClick={() => setMenuOpen(false)}>
+                Berita
+              </Link>
+              <Link href="/destinasi" className="px-4 py-2 hover:bg-teal-50 text-[#4a4a4a] font-semibold" onClick={() => setMenuOpen(false)}>
+                Destinasi Wisata
+              </Link>
+              <Link href="/login" className="px-4 py-2 hover:bg-teal-600 hover:text-white text-[#008275] font-semibold rounded-b-md" onClick={() => setMenuOpen(false)}>
+                Masuk
+              </Link>
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* Hero Section */}

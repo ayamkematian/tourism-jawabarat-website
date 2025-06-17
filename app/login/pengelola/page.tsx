@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import bcrypt from "bcryptjs";
+import{useEffect} from "react";
 
 
 export default function Login() {
@@ -14,9 +15,11 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitLoading(true);
     try {
       const { data, error } = await supabase
         .from("users")
@@ -25,27 +28,35 @@ export default function Login() {
         .single();
       if (error || !data) {
         setErrorMessage("Pengelola tidak ditemukan.");
+        setSubmitLoading(false);
         return;
       }
       if (data.role !== "pengelola") {
         setErrorMessage("Akun ini bukan Akun Pengelola.");
+        setSubmitLoading(false);
         return;
       }
       const isMatch = await bcrypt.compare(password, data.password);
       if (!isMatch) {
         setErrorMessage("Password salah.");
+        setSubmitLoading(false);
         return;
       }
-      alert("Login berhasil!");
       localStorage.setItem("pengelolaEmail", email);
       router.push("/pengelola/dashboard");
     } catch (error) {
       setErrorMessage("Terjadi kesalahan pada server.");
+      setSubmitLoading(false);
     }
   }
 
   return (
     <div className="relative min-h-screen bg-[url('/JawaBarat.png?height=1080&width=1920')] bg-cover bg-center flex items-center justify-center p-4">
+      {submitLoading && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#00a38f] border-b-4 border-white"></div>
+        </div>
+      )}
       <head><link rel="icon" href="/tic.png" /></head>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md"></div>
       <div className="relative z-10">
@@ -107,7 +118,7 @@ export default function Login() {
             href="/daftar"
             className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
           >
-            Belum Memiliki Akun? Daftarr
+            Belum Memiliki Akun? Daftar
           </Link>
         </div>
 

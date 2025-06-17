@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import { Drawer, DrawerTrigger, DrawerContent } from "@/components/ui/drawer"
+import { Menu as MenuIcon } from "lucide-react"
 
 import {
   AlertDialog,
@@ -112,8 +114,56 @@ export default function AdminLayout({
       {/* Header */}
       <header className="w-full bg-white py-4 px-6 flex items-center justify-between shadow-md sticky top-0 z-50">
         <div className="flex items-center gap-2">
-          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2" />
-          <div className="border-l-2 border-teal-600 pl-2">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <button className="md:hidden mr-2 p-2 rounded hover:bg-gray-100 focus:outline-none">
+                <MenuIcon className="w-7 h-7 text-[#008275]" />
+              </button>
+            </DrawerTrigger>
+            <DrawerContent className="md:hidden left-0 top-0 bottom-0 h-full w-64 rounded-none p-0">
+              <button
+                className="absolute top-3 right-3 p-2 rounded hover:bg-gray-100 focus:outline-none"
+                onClick={() => {
+                  // trigger close drawer
+                  const evt = new CustomEvent('vaul-close');
+                  window.dispatchEvent(evt);
+                }}
+                aria-label="Tutup Sidebar"
+                type="button"
+              >
+                <span className="text-2xl">×</span>
+              </button>
+              <nav className="p-4 pt-16">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Menu Admin</h2>
+                <ul className="space-y-2">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon
+                    const isActive = pathname === item.href
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                            isActive ? "bg-[#008275] text-white" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <div>
+                            <div className="font-medium">{item.label}</div>
+                            <div className={`text-xs ${isActive ? "text-gray-200" : "text-gray-500"}`}>
+                              {item.description}
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </nav>
+            </DrawerContent>
+          </Drawer>
+          <Image src="/tic.png" alt="Logo" width={70} height={70} className="mr-2 hidden md:block" />
+          <div className="border-l-2 border-teal-600 pl-2 hidden md:block">
             <Link href="/admin/dashboard" className="text-[#008275] font-semibold">Tourism Information Center</Link>
           </div>
         </div>
@@ -179,41 +229,44 @@ export default function AdminLayout({
           </div>
         </div>
       </header>
-
       <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-md min-h-[calc(100vh-88px)] sticky top-[88px]">
-          <nav className="p-4">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Menu Admin</h2>
-            <ul className="space-y-2">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                const isActive = pathname === item.href
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                        isActive ? "bg-[#008275] text-white" : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <div>
-                        <div className="font-medium">{item.label}</div>
-                        <div className={`text-xs ${isActive ? "text-gray-200" : "text-gray-500"}`}>
-                          {item.description}
+        {/* Sidebar Desktop */}
+        <div className="hidden md:flex">
+          <aside className="w-64 bg-white shadow-md min-h-[calc(100vh-88px)] sticky top-[88px]">
+            <nav className="p-4">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Menu Admin</h2>
+              <ul className="space-y-2">
+                {menuItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive = pathname === item.href
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                          isActive ? "bg-[#008275] text-white" : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <div>
+                          <div className="font-medium">{item.label}</div>
+                          <div className={`text-xs ${isActive ? "text-gray-200" : "text-gray-500"}`}>
+                            {item.description}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">{children}</main>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
+          </aside>
+          <main className="flex-1 p-6">{children}</main>
+        </div>
+        {/* Main Content Mobile */}
+        <div className="block md:hidden">
+          <main className="p-4">{children}</main>
+        </div>
       </div>
 
       {/* Logout Dialog */}
