@@ -87,7 +87,6 @@ export default function PengajuanPage() {
         fotourl: pengajuanItem.fotourl,
         pengunjung_max: pengajuanItem.pengunjung_max,
       }
-
       await supabase.from("destinasi").insert(destinasiData)
     }
 
@@ -127,44 +126,40 @@ export default function PengajuanPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2 sm:px-4 md:px-6 max-w-3xl mx-auto w-full">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">List Pengajuan Destinasi</h1>
         <p className="text-gray-600">Kelola pengajuan destinasi dan akomodasi wisata</p>
       </div>
 
-      <Card>
+      <Card className="w-full max-w-full">
         <CardHeader>
           <CardTitle>Daftar Pengajuan ({pengajuan.length})</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto w-full max-w-full">
           <div className="space-y-4">
             {paginatedData.map((item) => (
-              <div key={item.id} className="border rounded-lg">
+              <div key={item.id} className="border rounded-lg w-full max-w-full">
                 <div
-                  className="p-4 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+                  className="p-4 cursor-pointer hover:bg-gray-50 flex items-center justify-between w-full max-w-full"
                   onClick={() => setSelectedDetail(selectedDetail === item.id ? null : item.id)}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1">
-                    <div>
-                      <p className="text-sm text-gray-500">Kode</p>
-                      <p className="font-medium">{item.kode}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-4 gap-2 w-full">
+                    <div className="col-span-2">
+                      <p className="text-sm text-gray-500 break-words text-wrap">Pendaftar</p>
+                      <p className="font-medium break-words text-wrap whitespace-nowrap">{getPengelolaName(item.pengelola_id)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Pendaftar</p>
-                      <p className="font-medium">{getPengelolaName(item.pengelola_id)}</p>
+                      <p className="text-sm text-gray-500 break-words text-wrap">Nama Tempat</p>
+                      <p className="font-medium break-words text-wrap">{item.nama}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Nama Tempat</p>
-                      <p className="font-medium">{item.nama}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Kategori</p>
-                      <p className="font-medium">{item.kategori}</p>
+                      <p className="text-sm text-gray-500 break-words text-wrap">Kategori</p>
+                      <p className="font-medium break-words text-wrap">{item.kategori}</p>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Status</p>
+                        <p className="text-sm text-gray-500 break-words text-wrap">Status</p>
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             item.status === "Disetujui"
@@ -175,14 +170,15 @@ export default function PengajuanPage() {
                           {item.status}
                         </span>
                       </div>
-                      {selectedDetail === item.id ? <ChevronUp /> : <ChevronDown />}
+                      {selectedDetail === item.id ? <ChevronUp /> : <ChevronDown />
+                      }
                     </div>
                   </div>
                 </div>
 
                 {selectedDetail === item.id && (
-                  <div className="border-t bg-gray-50 p-4 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border-t bg-gray-50 p-4 space-y-3 overflow-x-auto w-full max-w-full">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-full">
                       <div>
                         <p className="text-sm font-medium text-gray-700">Alamat:</p>
                         <p className="text-sm text-gray-600">{item.alamat}</p>
@@ -295,7 +291,7 @@ export default function PengajuanPage() {
                                 <img
                                   src={url}
                                   alt={`Preview ${idx + 1}`}
-                                  className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                                  className="w-32 max-w-full h-20 object-cover rounded border hover:opacity-80 transition"
                                 />
                               </a>
                             ))}

@@ -34,6 +34,9 @@ export default function PengelolaDashboardPage() {
   const [loading, setLoading] = useState(false)
   const [showList, setShowList] = useState(false)
   const [notifikasi, setNotifikasi] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const pageSize = 5; // jumlah destinasi per halaman
   const email = typeof window !== "undefined" ? localStorage.getItem("pengelolaEmail") : null
   const router = useRouter();
   const RupiahIcon = () => (
@@ -54,11 +57,21 @@ export default function PengelolaDashboardPage() {
         .eq("role", "pengelola")
         .single()
       if (!pengelola?.id) return setLoading(false)
+      // Hitung total destinasi
+      const { count } = await supabase
+        .from("daftar_destinasi")
+        .select("*", { count: "exact", head: true })
+        .eq("pengelola_id", pengelola.id)
+      setTotalPages(count ? Math.ceil(count / pageSize) : 1)
+      // Ambil destinasi sesuai halaman
+      const from = (currentPage - 1) * pageSize
+      const to = from + pageSize - 1
       const { data } = await supabase
         .from("daftar_destinasi")
         .select("*", { count: "exact" })
         .eq("pengelola_id", pengelola.id)
         .order("created_at", { ascending: false })
+        .range(from, to)
       setDestinations(
         (data || []).map((item: any) => ({
           id: item.id,
@@ -78,8 +91,9 @@ export default function PengelolaDashboardPage() {
       )
       setLoading(false)
     }
-    fetchDestinasiWithPengelola()
-  }, [])
+    if (showList) fetchDestinasiWithPengelola()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showList, currentPage])
 
   useEffect(() => {
     if (!email) return;
@@ -220,6 +234,26 @@ export default function PengelolaDashboardPage() {
                     )}
                   </div>
                 ))}
+                {/* Pagination Controls */}
+                <div className="flex justify-center gap-2 mt-6">
+                  <Button
+                    variant="outline"
+                    className="px-3 py-1"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <span className="px-2 py-1 text-sm">Halaman {currentPage} dari {totalPages}</span>
+                  <Button
+                    variant="outline"
+                    className="px-3 py-1"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
             )
           )}

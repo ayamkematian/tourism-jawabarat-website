@@ -138,6 +138,19 @@ export default function DetailDestinasi() {
       const izinUrl = await uploadAndGetUrl(izinBase64, "foto-surat-izin", "izin.jpg");
       const laporanUrl = await uploadAndGetUrl(laporanBase64, "foto-laporan-keuangan", "laporan.jpg");
 
+      // Upload foto destinasi ke bucket 'foto-destinasi' Supabase
+      let fotoUrls: string[] = [];
+      if (destinationPhotos.length > 0) {
+        for (const file of destinationPhotos) {
+          const fileExt = file.name.split('.').pop();
+          const uniqueName = `destinasi-${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage.from("foto-destinasi").upload(uniqueName, file);
+          if (uploadError) throw uploadError;
+          const { data } = supabase.storage.from("foto-destinasi").getPublicUrl(uniqueName);
+          fotoUrls.push(data.publicUrl);
+        }
+      }
+
       // 3. Ambil data detail dari form
       const deskripsi = (document.getElementById("deskripsi") as HTMLTextAreaElement)?.value || "";
       const kategori = (document.getElementById("kategori") as HTMLSelectElement)?.value || "";
@@ -179,7 +192,7 @@ export default function DetailDestinasi() {
           alamat,
           lokasi,
           pengelola_id: pengelolaId,
-          fotourl: destinationPhotos.length > 0 ? destinationPhotos.map((file) => URL.createObjectURL(file)) : [],
+          fotourl: fotoUrls,
           pengunjung_max: pengunjungMax === "" ? null : parseInt(pengunjungMax, 10),
           status: "pending",
         },

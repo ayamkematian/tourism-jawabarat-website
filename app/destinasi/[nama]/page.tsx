@@ -12,6 +12,7 @@ const {format} = require("date-fns")
 const Chart = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), { ssr: false })
 
 export default function DestinasiPage({ params }: { params: Promise<{ nama: string }> }) {
+  // Semua hook harus di atas, sebelum return apa pun
   const { nama } = React.use(params)
   const [destinasi, setDestinasi] = useState<any>(null)
   const [error, setError] = useState("")
@@ -26,15 +27,34 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
   const rainPercent = rainStatus === "hujan" ? 100 : 0
   const [sensorHistory, setSensorHistory] = useState<any>({})
   const [chartData, setChartData] = useState<any>(null)
+  // State untuk slider foto
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [fotoArray, setFotoArray] = useState<string[]>([]);
+
+  // Ambil data destinasi dari tabel destinasi
+  useEffect(() => {
+    const fetchDestinasi = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("destinasi")
+          .select("*")
+          .eq("slug", nama)
+          .single()
+        if (error || !data) throw new Error("Destinasi tidak ditemukan")
+        setDestinasi(data)
+      } catch (err: any) {
+        setError(err.message)
+      }
+    }
+    fetchDestinasi()
+  }, [nama])
 
   // Listener dinamis untuk PeopleInside dan Sensor
   useEffect(() => {
     if (!destinasi) return
-
     const database = getDatabase(firebaseApp)
     const peopleRef = ref(database, `raspberry_data/${nama}/PeopleInside`)
     const sensorRef = ref(database, `Sensor/${nama}`)
-
     // Listener PeopleInside
     const peopleListener = onValue(peopleRef, (snapshot) => {
       const dbValue = snapshot.val()
@@ -44,7 +64,6 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         setDensityPercent(percent)
       }
     })
-
     // Listener Sensor (suhu, kelembapan, hujan)
     const sensorListener = onValue(sensorRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -54,13 +73,34 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         setRainStatus(data.Rain_Status)
       }
     })
-
     // Cleanup listener saat unmount
     return () => {
       off(peopleRef)
       off(sensorRef)
     }
   }, [destinasi, nama])
+
+  // Hydration-safe: parsing fotoArray hanya di client
+  useEffect(() => {
+    if (destinasi && typeof destinasi.fotourl === "string" && destinasi.fotourl.startsWith("[")) {
+      try {
+        setFotoArray(JSON.parse(destinasi.fotourl));
+      } catch {
+        setFotoArray([]);
+      }
+    } else {
+      setFotoArray([]);
+    }
+  }, [destinasi]);
+
+  // Auto-slide: ubah foto setiap 3 detik jika fotoArray > 1
+  useEffect(() => {
+    if (fotoArray.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % fotoArray.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [fotoArray]);
 
   // Status kepadatan berdasarkan persentase
   const getDensityStatus = (percent: number | null) => {
@@ -86,25 +126,6 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     return "Sepi"
   }
 
-  // Ambil data destinasi dari Supabase
-  useEffect(() => {
-    const fetchDestinasi = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("destinasi")
-          .select("*")
-          .eq("slug", nama)
-          .single()
-        if (error || !data) throw new Error("Destinasi tidak ditemukan")
-        setDestinasi(data)
-      } catch (err: any) {
-        setError(err.message)
-      }
-    }
-
-    fetchDestinasi()
-  }, [nama])
-
   if (error) {
     return <div className="container mx-auto px-4 py-6">Error: {error}</div>
   }
@@ -113,19 +134,11 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     return <div className="container mx-auto px-4 py-6">Loading...</div>
   }
 
-  // Parse fotourl jika berupa string JSON
-  let fotoArray: string[] = [];
-  if (typeof destinasi.fotourl === "string" && destinasi.fotourl.startsWith("[")) {
-    try {
-      fotoArray = JSON.parse(destinasi.fotourl);
-    } catch {
-      fotoArray = [];
-    }
-  }
+  const handlePrev = () => setActiveIndex((prev) => prev === 0 ? fotoArray.length - 1 : prev - 1)
+  const handleNext = () => setActiveIndex((prev) => prev === fotoArray.length - 1 ? 0 : prev + 1)
 
   return (
     <main className="min-h-screen bg-white">
-      <head><link rel="icon" href="/tic.png" /></head>
       {/* Navigation Bar */}
       <nav className="flex items-center justify-between px-4 py-3 bg-white shadow-sm md:px-8">
         <div className="flex items-center">
@@ -152,11 +165,27 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
 
       <div className="container mx-auto px-4 py-6 pb-10">
         <h1 className="text-3xl font-bold mb-6">{destinasi.nama}</h1>
-        {/* Image Slider */}
+        {/* Image Slider Dinamis */}
         <div className="relative mb-8">
-          <div className="overflow-hidden rounded-lg h-[400px] relative">
-            <Image src={destinasi.gambar || "/placeholder.svg"} alt={destinasi.nama} fill className="object-cover" />
+          <div className="overflow-hidden rounded-lg h-[400px] relative flex items-center justify-center">
+            {fotoArray.length > 0 ? (
+              <Image src={fotoArray[activeIndex]} alt={destinasi.nama} fill className="object-cover transition-all duration-300" />
+            ) : (
+              <Image src={destinasi.gambar || "/placeholder.svg"} alt={destinasi.nama} fill className="object-cover" />
+            )}
+            {/* Tombol Prev/Next */}
+            {fotoArray.length > 1 && (
+              <>
+                <button onClick={handlePrev} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 shadow hover:bg-white">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button onClick={handleNext} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 shadow hover:bg-white">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+              </>
+            )}
           </div>
+          {/* Thumbnail dihapus */}
         </div>
 
         {/* Info Section */}
@@ -378,14 +407,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
                   Jam Buka
                 </h3>
                 {destinasi.jambuka ? (
-                  <div className="grid grid-cols-2 gap-2 text-gray-700">
-                    <div>Senin - Jumat:</div>
-                    <div>{destinasi.jambuka.weekday || "08:00 - 16:00"}</div>
-                    <div>Sabtu - Minggu:</div>
-                    <div>{destinasi.jambuka.weekend || "08:00 - 17:00"}</div>
-                    <div>Hari Libur:</div>
-                    <div>{destinasi.jambuka.holiday || "08:00 - 17:00"}</div>
-                  </div>
+                  <div className="text-gray-700">{destinasi.jambuka}</div>
                 ) : (
                   <p className="italic text-gray-500">Jam buka belum tersedia untuk destinasi ini.</p>
                 )}
@@ -411,18 +433,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
                   Harga Tiket
                 </h3>
                 {destinasi.hargatiket ? (
-                  <div className="grid grid-cols-2 gap-2 text-gray-700">
-                    <div>Dewasa:</div>
-                    <div>Rp {destinasi.hargatiket.dewasa?.toLocaleString("id-ID") || "25.000"}</div>
-                    <div>Anak-anak:</div>
-                    <div>Rp {destinasi.hargatiket.anak?.toLocaleString("id-ID") || "15.000"}</div>
-                    {destinasi.hargatiket.mancanegara && (
-                      <>
-                        <div>Wisatawan Mancanegara:</div>
-                        <div>Rp {destinasi.hargatiket.mancanegara.toLocaleString("id-ID")}</div>
-                      </>
-                    )}
-                  </div>
+                  <div className="text-gray-700">Rp {destinasi.hargatiket}</div>
                 ) : (
                   <p className="italic text-gray-500">Informasi harga tiket belum tersedia untuk destinasi ini.</p>
                 )}

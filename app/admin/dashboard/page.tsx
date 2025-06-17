@@ -82,7 +82,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-screen">
       <head><link rel="icon" href="/tic.png" /></head>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin</h1>
