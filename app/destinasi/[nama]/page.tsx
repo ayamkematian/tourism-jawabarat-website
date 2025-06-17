@@ -8,6 +8,8 @@ import firebaseApp from "@/backend/firebase-sdk"
 import { supabase } from "@/lib/supabaseClient"
 import React from "react"
 import dynamic from "next/dynamic"
+import "@/components/chart-setup"
+import { getFirestore, collection, getDocs } from "firebase/firestore"
 const {format} = require("date-fns")
 const Chart = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), { ssr: false })
 
@@ -101,6 +103,61 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     }, 3000);
     return () => clearInterval(interval);
   }, [fotoArray]);
+
+  // Ambil histori suhu dari Firebase dan siapkan data chart
+  useEffect(() => {
+    if (!destinasi) return;
+    const fetchChartData = async () => {
+      try {
+        const db = getFirestore(firebaseApp);
+        // Format tanggal hari ini (YYYY-MM-DD)
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const tanggal = `${yyyy}-${mm}-${dd}`;
+
+        // Path: Rata2LoggingESP/{nama}/Per_hari/{tanggal}/DataPerJam
+        const colRef = collection(db, `Rata2LoggingESP/${nama}/Per_hari/${tanggal}/DataPerJam`);
+        const snapshot = await getDocs(colRef);
+        const jamArr: string[] = [];
+        const suhuArr: number[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          jamArr.push(doc.id); // id dokumen = jam, misal "13"
+          // Pastikan hanya number, jika tidak, push NaN
+          suhuArr.push(typeof data.suhu_rata2 === 'number' ? data.suhu_rata2 : NaN);
+          // Log detail dokumen
+          console.log("doc.id", doc.id, "data", data);
+        });
+        console.log("jamArr", jamArr);
+        console.log("suhuArr", suhuArr);
+        console.log("snapshot size", snapshot.size);
+
+        // Urutkan berdasarkan jam dan pastikan jam 00-23 selalu ada
+        const jamLengkap = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'));
+        const jamToSuhu: Record<string, number> = {};
+        jamArr.forEach((jam, i) => {
+          jamToSuhu[jam.padStart(2, '0')] = typeof suhuArr[i] === 'number' ? suhuArr[i] : NaN;
+        });
+        setChartData({
+          labels: jamLengkap.map(j => j + ':00'),
+          datasets: [
+            {
+              label: 'Rata-rata Suhu (°C)',
+              data: jamLengkap.map(j => jamToSuhu[j] ?? NaN),
+              borderColor: '#008275',
+              backgroundColor: 'rgba(0,130,117,0.2)',
+              tension: 0.3,
+            },
+          ],
+        });
+      } catch (e) {
+        setChartData(null);
+      }
+    };
+    fetchChartData();
+  }, [destinasi, nama]);
 
   // Status kepadatan berdasarkan persentase
   const getDensityStatus = (percent: number | null) => {
@@ -305,6 +362,31 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Tambahkan grafik suhu rata-rata (kecil, di atas deskripsi) */}
+        <div className="max-w-md mx-auto mt-8 mb-4">
+          {chartData ? (
+            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <h3 className="text-base font-semibold mb-2 text-[#008275]">Grafik Rata-rata Suhu Hari Ini</h3>
+              <Chart
+                data={chartData}
+                options={{
+                  responsive: true,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { title: { display: true, text: 'Jam' }, ticks: { font: { size: 10 } } },
+                    y: { title: { display: true, text: 'Suhu (°C)' }, min: 0, max: 50, ticks: { font: { size: 10 } } },
+                  },
+                }}
+                height={180}
+              />
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 text-center text-gray-500">
+              Data grafik suhu rata-rata belum tersedia untuk hari ini.
+            </div>
+          )}
         </div>
 
         {/* Detailed Information Section */}
