@@ -107,7 +107,7 @@ export default function Login() {
             href="/daftar"
             className="block text-center bg-[#00a38f] hover:bg-[#00b9a2] text-white py-2 rounded transition-colors"
           >
-            Belum Memiliki Akun? Daftar
+            Belum Memiliki Akun? Daftarr
           </Link>
         </div>
 
