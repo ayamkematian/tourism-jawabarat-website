@@ -44,6 +44,7 @@ export default function DetailDestinasi() {
     "Kota Tasikmalaya"
   ];
   const [lokasi, setLokasi] = useState("");
+  const [pengunjungMax, setPengunjungMax] = useState<string>("");
 
   const kategoriList = [
     "Wisata Alam",
@@ -179,6 +180,7 @@ export default function DetailDestinasi() {
           lokasi,
           pengelola_id: pengelolaId,
           fotourl: destinationPhotos.length > 0 ? destinationPhotos.map((file) => URL.createObjectURL(file)) : [],
+          pengunjung_max: pengunjungMax === "" ? null : parseInt(pengunjungMax, 10),
           status: "pending",
         },
       ]);
@@ -237,7 +239,24 @@ export default function DetailDestinasi() {
                 Alamat Lengkap
               </Label>
               <Textarea id="alamat" className="mt-1" />
+            </div>.
+
+            <div>
+              <Label htmlFor="pengunjung-max" className="text-[#575757]">
+                Jumlah Pengunjung Maksimal
+              </Label>
+              <Input
+                id="pengunjung-max"
+                type="number"
+                min={1}
+                className="mt-1"
+                placeholder="Contoh: 100"
+                value={pengunjungMax}
+                onChange={e => setPengunjungMax(e.target.value)}
+                required
+              />
             </div>
+
             <div>
               <Label htmlFor="lokasi" className="text-[#575757]">
                 Lokasi
@@ -256,6 +275,7 @@ export default function DetailDestinasi() {
               </select>
             </div>
           </div>
+          
           <div className="space-y-4">
             <div>
               <Label htmlFor="kategori" className="text-[#575757]">

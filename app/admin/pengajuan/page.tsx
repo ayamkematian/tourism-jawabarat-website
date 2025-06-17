@@ -44,7 +44,7 @@ export default function PengajuanPage() {
     // Ambil data pengelola dari tabel users dengan role pengelola
     const { data: pengelolaData } = await supabase
       .from("users")
-      .select("id, namalengkap, email")
+      .select("id, namalengkap")
       .eq("role", "pengelola")
     
     // Urutkan: pending dulu, lalu Disetujui/Ditolak
@@ -57,12 +57,6 @@ export default function PengajuanPage() {
     setPengajuan(sortedPengajuan)
     setPengelolaList(pengelolaData || [])
     setLoading(false)
-  }
-
-  // Helper untuk ambil email pengelola dari id
-  const getPengelolaEmail = (pengelolaId: number) => {
-    const pengelola = pengelolaList.find((p) => p.id === pengelolaId)
-    return pengelola ? pengelola.email : null
   }
 
   const handleAccept = async (id: number) => {
@@ -91,30 +85,10 @@ export default function PengajuanPage() {
         hargatiket: pengajuanItem.hargatiket,
         jambuka: pengajuanItem.jambuka,
         fotourl: pengajuanItem.fotourl,
+        pengunjung_max: pengajuanItem.pengunjung_max,
       }
 
       await supabase.from("destinasi").insert(destinasiData)
-
-      // --- Kirim notifikasi ke pengelola ---
-      const emailPengelola = getPengelolaEmail(pengajuanItem.pengelola_id)
-      if (emailPengelola) {
-        await supabase.from("notifikasii").insert({
-          user_email: emailPengelola,
-          role: "pengelola",
-          pesan: `Pengajuan destinasi "${pengajuanItem.nama}" telah diterima.`,
-          waktu: new Date().toISOString(),
-          status: "unread"
-        })
-      }
-      // --- end notifikasi ---
-      // --- Kirim notifikasi ke admin jika ingin notifikasi admin juga saat approve ---
-      await supabase.from("notifikasii").insert({
-        user_email: null,
-        role: "admin",
-        pesan: `Pengajuan destinasi "${pengajuanItem.nama}" telah disetujui oleh admin.`,
-        waktu: new Date().toISOString(),
-        status: "unread"
-      })
     }
 
     setAcceptLoading(false)
@@ -125,34 +99,11 @@ export default function PengajuanPage() {
 
   const handleReject = async (id: number) => {
     setRejectLoading(true)
-    const pengajuanItem = pengajuan.find((item) => item.id === id)
     // Update status menjadi Ditolak, tidak menghapus data
     await supabase
       .from("daftar_destinasi")
       .update({ status: "Ditolak", is_validated: false })
       .eq("id", id)
-
-    // --- Kirim notifikasi ke pengelola ---
-    const emailPengelola = pengajuanItem ? getPengelolaEmail(pengajuanItem.pengelola_id) : null
-    if (emailPengelola && pengajuanItem) {
-      await supabase.from("notifikasii").insert({
-        user_email: emailPengelola,
-        role: "pengelola",
-        pesan: `Pengajuan destinasi "${pengajuanItem.nama}" telah ditolak.`,
-        waktu: new Date().toISOString(),
-        status: "unread"
-      })
-    }
-    // --- end notifikasi ---
-    // --- Kirim notifikasi ke admin jika ingin notifikasi admin juga saat reject ---
-    await supabase.from("notifikasii").insert({
-      user_email: null,
-      role: "admin",
-      pesan: `Pengajuan destinasi "${pengajuanItem?.nama}" telah ditolak oleh admin.`,
-      waktu: new Date().toISOString(),
-      status: "unread"
-    })
-
     setRejectLoading(false)
     setRejectDialogOpen(false)
     setSelectedRejectId(null)
@@ -232,8 +183,127 @@ export default function PengajuanPage() {
                 {selectedDetail === item.id && (
                   <div className="border-t bg-gray-50 p-4 space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* ...detail pengajuan... */}
-                      {/* kode detail tetap, tidak diubah */}
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Alamat:</p>
+                        <p className="text-sm text-gray-600">{item.alamat}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Lokasi:</p>
+                        <p className="text-sm text-gray-600">{item.lokasi}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Harga Tiket:</p>
+                        <p className="text-sm text-gray-600">Rp {item.hargatiket}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Jam Buka:</p>
+                        <p className="text-sm text-gray-600">{item.jambuka}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Deskripsi:</p>
+                        <p className="text-sm text-gray-600">{item.deskripsi}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Nomor Induk Berusaha:</p>
+                        <p className="text-sm text-gray-600">{item.nibu}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">NPWP:</p>
+                        <p className="text-sm text-gray-600">{item.npwp}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">KTP:</p>
+                        {item.ktp ? (
+                          <a href={item.ktp} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.ktp}
+                              alt="KTP"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Akta Pendirian Usaha:</p>
+                        {item.akta ? (
+                          <a href={item.akta} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.akta}
+                              alt="Akta"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Sertifikat Tanah:</p>
+                        {item.sertifikat ? (
+                          <a href={item.sertifikat} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.sertifikat}
+                              alt="Sertifikat"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Surat Izin Lurah dan Camat:</p>
+                        {item.izin ? (
+                          <a href={item.izin} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.izin}
+                              alt="Izin"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Laporan Keuangan:</p>
+                        {item.laporan ? (
+                          <a href={item.laporan} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={item.laporan}
+                              alt="Laporan"
+                              className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                            />
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada file</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">Foto Destinasi:</p>
+                        {item.fotourl && Array.isArray(item.fotourl) && item.fotourl.length > 0 ? (
+                          <div className="flex gap-2 flex-wrap">
+                            {item.fotourl.map((url: string, idx: number) => (
+                              <a
+                                key={idx}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Preview ${idx + 1}`}
+                                  className="w-32 h-20 object-cover rounded border hover:opacity-80 transition"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-600">Tidak ada gambar</span>
+                        )}
+                      </div>
                     </div>
 
                     {item.status !== "Disetujui" && (

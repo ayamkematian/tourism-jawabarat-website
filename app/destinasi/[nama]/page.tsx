@@ -6,8 +6,10 @@ import Link from "next/link"
 import { getDatabase, ref, child, get } from "firebase/database"
 import firebaseApp from "@/backend/firebase-sdk"
 import { supabase } from "@/lib/supabaseClient"
+import React from "react"
 
-export default function DestinasiPage({ params }: { params: { nama: string } }) {
+export default function DestinasiPage({ params }: { params: Promise<{ nama: string }> }) {
+  const { nama } = React.use(params)
   const [destinasi, setDestinasi] = useState<any>(null)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -24,8 +26,8 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
       const database = getDatabase(firebaseApp)
       const rootReference = ref(database)
-      // Gunakan params.nama untuk path dinamis
-      const dbGet = await get(child(rootReference, `raspberry_data/${params.nama}/Density`))
+      // Gunakan nama untuk path dinamis
+      const dbGet = await get(child(rootReference, `raspberry_data/${nama}/PeopleInside`))
       const dbValue = dbGet.val()
       setDensity(dbValue)
       console.log("Density:", dbValue)
@@ -42,8 +44,8 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     try {
       const database = getDatabase(firebaseApp)
       const rootReference = ref(database)
-      // Gunakan params.nama untuk path dinamis
-      const snapshot = await get(child(rootReference, `Sensor/${params.nama}`))
+      // Gunakan nama untuk path dinamis
+      const snapshot = await get(child(rootReference, `Sensor/${nama}`))
       if (snapshot.exists()) {
         const data = snapshot.val()
         setHumidity(data.Humidity)
@@ -51,7 +53,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
         setRainStatus(data.Rain_Status)
         console.log("Firebase data:", data)
       } else {
-        console.warn(`No data found at Sensor/${params.nama}`)
+        console.warn(`No data found at Sensor/${nama}`)
       }
     } catch (error) {
       console.error("Firebase DB Error:", error)
@@ -87,14 +89,14 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
       try {
         const database = getDatabase(firebaseApp)
         const rootReference = ref(database)
-        const snapshot = await get(child(rootReference, `raspberry_data/${params.nama}/Density`))
+        const snapshot = await get(child(rootReference, `raspberry_data/${nama}/PeopleInside`))
 
         if (snapshot.exists()) {
           const dbValue = snapshot.val()
           console.log("Density:", dbValue)
           // Kamu bisa set state di sini kalau perlu
         } else {
-          console.warn("No data found at raspberry_data/${params.nama}/Density")
+          console.warn(`No data found at raspberry_data/${nama}/PeopleInside`)
         }
       } catch (err) {
         console.error("Firebase DB Error:", err)
@@ -111,7 +113,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
         const { data, error } = await supabase
           .from("destinasi")
           .select("*")
-          .eq("slug", params.nama)
+          .eq("slug", nama)
           .single()
         if (error || !data) throw new Error("Destinasi tidak ditemukan")
         setDestinasi(data)
@@ -121,7 +123,7 @@ export default function DestinasiPage({ params }: { params: { nama: string } }) 
     }
 
     fetchDestinasi()
-  }, [params.nama])
+  }, [nama])
 
   if (error) {
     return <div className="container mx-auto px-4 py-6">Error: {error}</div>
