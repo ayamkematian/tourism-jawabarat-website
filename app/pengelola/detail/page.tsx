@@ -222,6 +222,7 @@ export default function DetailDestinasi() {
 
   return (
     <div className="flex-1 bg-[#eaeaea] p-6">
+      <head><link rel="icon" href="/tic.png" /></head>
       <div className="bg-[#ffffff] rounded-lg p-6 max-w-flex mx-auto w-full">
         <h1 className="text-2xl font-bold text-[#000000] mb-2">Detail Destinasi Wisata</h1>
         <p className="text-[#575757] mb-6">Lengkapi informasi destinasi wisata anda</p>

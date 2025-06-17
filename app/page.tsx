@@ -95,17 +95,60 @@ export default function Home() {
         </p>
 
         {/* Gallery - Kolase Gambar */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-10">
-          <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={900} />
-          <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={500} height={700} />
-          <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={700} height={800} />
-          <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/gunungpadang.jpeg" alt="img5" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/gunungpapandayan.jpeg" alt="img6" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/sangyang.jpeg" alt="img7" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/sayangheulang.jpeg" alt="img8" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/tamansafari.jpeg" alt="img9" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
-          <Image src="/telaganilem.jpeg" alt="img10" className="rounded-lg object-cover transition-transform duration-300 hover:scale-[1.01]" width={400} height={400} />
+        <div
+          className="mt-10"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 2fr 1fr 1fr",
+            gridTemplateRows: "repeat(3, 200px)",
+            gridTemplateAreas: `
+              "img1 img4 img7 img8"
+              "img2 img4 img6 img9"
+              "img3 img5 img5 img10"
+            `,
+            gap: "12px",
+          }}
+        >
+          {/* Gambar 1 */}
+          <div style={{ gridArea: "img1" }}>
+            <Image src="/candijiwa.jpeg" alt="img1" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={500} height={160} />
+          </div>
+          {/* Gambar 2 */}
+          <div style={{ gridArea: "img2" }}>
+            <Image src="/curugmalela.jpg" alt="img2" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={500} height={160} />
+          </div>
+          {/* Gambar 3 */}
+          <div style={{ gridArea: "img3" }}>
+            <Image src="/curugputri.jpeg" alt="img3" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={500} height={160} />
+          </div>
+          {/* Gambar 4 (besar, 2 baris) */}
+          <div style={{ gridArea: "img4" }}>
+            <Image src="/guasunyaragi.jpeg" alt="img4" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={700} height={332} />
+          </div>
+          {/* Gambar 5 (besar, 2 kolom) */}
+          <div style={{ gridArea: "img5" }}>
+            <Image src="/gunungpadang.jpeg" alt="img5" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={900} height={160} />
+          </div>
+          {/* Gambar 6 */}
+          <div style={{ gridArea: "img6" }}>
+            <Image src="/gunungpapandayan.jpeg" alt="img6" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={400} height={160} />
+          </div>
+          {/* Gambar 7 */}
+          <div style={{ gridArea: "img7" }}>
+            <Image src="/sangyang.jpeg" alt="img7" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={400} height={160} />
+          </div>
+          {/* Gambar 8 */}
+          <div style={{ gridArea: "img8" }}>
+            <Image src="/sayangheulang.jpeg" alt="img8" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={400} height={160} />
+          </div>
+          {/* Gambar 9 */}
+          <div style={{ gridArea: "img9" }}>
+            <Image src="/tamansafari.jpeg" alt="img9" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={400} height={160} />
+          </div>
+          {/* Gambar 10 */}
+          <div style={{ gridArea: "img10" }}>
+            <Image src="/telaganilem.jpeg" alt="img10" className="rounded-lg object-cover w-full h-full hover:scale-105 hover:shadow-lg transition" width={400} height={160} />
+          </div>
         </div>
       </section>
 

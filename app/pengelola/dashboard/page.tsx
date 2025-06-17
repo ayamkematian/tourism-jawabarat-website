@@ -113,6 +113,7 @@ export default function PengelolaDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
+      <head><link rel="icon" href="/tic.png" /></head>
       <div className="flex-1 p-2 sm:p-4 md:p-6 bg-[#eaeaea]">
         <div className="bg-[#ffffff] rounded-lg p-2 sm:p-4 md:p-6 max-w-flex mx-auto w-full">
           <div className="flex items-center justify-between mb-2">
