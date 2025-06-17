@@ -132,26 +132,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Stats Section */}
-      <div className="container mx-auto px-4 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="stat-box">
-          <p className="text-sm">Jumlah Wisatawan Lokal</p>
-          <p className="text-2xl font-bold">10.000.000</p>
-        </div>
-        <div className="stat-box">
-          <p className="text-sm">Kabupaten/Kota Terfavorit</p>
-          <p className="text-xl font-bold">Kabupaten Bandung Barat</p>
-        </div>
-        <div className="stat-box">
-          <p className="text-sm">Destinasi Wisata Terpopuler</p>
-          <p className="text-xl font-bold">Curug Malela</p>
-        </div>
-        <div className="stat-box">
-          <p className="text-sm">Jumlah Wisatawan Mancanegara</p>
-          <p className="text-2xl font-bold">10.000.000</p>
-        </div>
-      </div>
-
       {/* Search Section */}
       <div className="container mx-auto px-4 py-2 flex flex-wrap gap-2 mb-2">
       <select
@@ -232,7 +212,7 @@ export default function Home() {
                 className="w-full h-full object-cover"
               />
               <div className="label">{destinasi.nama}</div>
-              <div className="new-badge">New</div>
+              <div className="new-badge">{destinasi.lokasi}</div>
             </Link>
           ))
         )}
