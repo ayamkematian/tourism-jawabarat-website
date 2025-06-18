@@ -113,8 +113,9 @@ export default function CreateArtikelPage() {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => handleInputChange("slug", e.target.value)}
                   placeholder="url-artikel"
+                  readOnly
+                  className="bg-gray-100 cursor-not-allowed"
                 />
               </div>
 
