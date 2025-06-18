@@ -165,8 +165,8 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     if (percent > 80) return "Sangat Padat"
     if (percent > 60) return "Padat"
     if (percent > 30) return "Renggang"
-    if (percent <= 0) return "Memuat"
-    return "Sepi"
+    if (percent > 0) return "Sepi"
+    return "Memuat..."
   }
   // Warna status kepadatan
   const getDensityColor = (percent: number | null) => {
@@ -174,8 +174,8 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     if (percent > 80) return "bg-red-500/20 text-[#952020]"
     if (percent > 60) return "bg-orange-400/20 text-orange-700"
     if (percent > 30) return "bg-yellow-200 text-yellow-800"
-    if (percent <= 0) return "bg-gray-200 text-gray-500"
-    return "bg-green-200 text-green-800"
+    if (percent > 0) return "bg-green-100 text-green-700"
+    return "bg-gray-200 text-gray-500"
   }
 
   const getDensityLabel = (value: number) => {
