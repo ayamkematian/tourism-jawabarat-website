@@ -137,7 +137,7 @@ export default function AdminDashboard() {
               className="p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors block"
             >
               <h3 className="font-medium text-gray-900">Kelola Destinasi</h3>
-              <p className="text-sm text-gray-600">Edit dan hapus destinasi wisata</p>
+              <p className="text-sm text-gray-600">Lihat dan hapus destinasi wisata</p>
             </Link>
           </div>
         </CardContent>
