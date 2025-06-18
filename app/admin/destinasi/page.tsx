@@ -34,9 +34,9 @@ export default function DestinasiPage() {
   useEffect(() => {
     const filtered = destinasi.filter(
       (item) =>
-        item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.kategori.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.alamat.toLowerCase().includes(searchTerm.toLowerCase()),
+        (item.nama?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (item.kategori?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (item.alamat?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
     )
     setFilteredDestinasi(filtered)
     setCurrentPage(1)

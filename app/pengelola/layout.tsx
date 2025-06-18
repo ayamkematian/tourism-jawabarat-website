@@ -77,9 +77,6 @@ export default function AdminLayout({
           <span className="text-[#008275] font-medium">| Tourism Information Center</span>
         </div>
         <div className="flex items-center gap-4 relative">
-          <button className="relative">
-            <span className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">🔔</span>
-          </button>
           <div className="relative">
             <button
               className="flex items-center gap-2 focus:outline-none"
