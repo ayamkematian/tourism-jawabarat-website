@@ -168,40 +168,6 @@ export default function AdminLayout({
           </div>
         </div>
         <div className="flex items-center gap-4 relative">
-          <button className="relative" onClick={() => setShowNotif((v) => !v)}>
-            <span className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">🔔</span>
-            {notifikasi.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">{notifikasi.length}</span>
-            )}
-          </button>
-          {showNotif && (
-            <div className="absolute right-16 mt-2 w-80 bg-white border rounded shadow-lg z-30 max-h-96 overflow-y-auto">
-              <div className="p-3 border-b font-semibold text-[#008275] flex items-center justify-between">
-                <span>Notifikasi Admin</span>
-                <button
-                  className="text-gray-400 hover:text-gray-700 text-lg font-bold px-2 focus:outline-none"
-                  onClick={() => setShowNotif(false)}
-                  aria-label="Tutup Notifikasi"
-                  type="button"
-                >
-                  ✕
-                </button>
-              </div>
-              {notifikasi.length === 0 ? (
-                <div className="p-4 text-gray-500 text-sm">Belum ada notifikasi.</div>
-              ) : (
-                <ul>
-                  {notifikasi.map((notif) => (
-                    <li key={notif.id} className="px-4 py-2 border-b last:border-b-0 text-sm hover:bg-gray-50">
-                      <div className="font-medium">{notif.aksi}</div>
-                      <div className="text-gray-700">{notif.target}</div>
-                      <div className="text-gray-400 text-xs">{new Date(notif.waktu).toLocaleString()}</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
           <div className="relative">
             <button
               className="flex items-center gap-flex focus:outline-none"
