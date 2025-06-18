@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Share2, Calendar } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { toast } from "sonner"
 import { supabase } from "@/lib/supabaseClient"
 
 export default function IsiberitaClient() {
@@ -37,6 +38,26 @@ export default function IsiberitaClient() {
     fetchArtikel()
     fetchBeritaLain()
   }, [id])
+
+  const handleShare = () => {
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    if (navigator.share) {
+      navigator.share({
+        title: artikel?.judul || "Berita",
+        text: artikel?.excerpt || "",
+        url: shareUrl,
+      }).catch(() => {});
+    } else {
+      // Fallback: copy link ke clipboard
+      navigator.clipboard.writeText(shareUrl);
+      // Tampilkan notifikasi
+      if (typeof toast === "function") {
+        toast.success("Link postingan telah disalin!");
+      } else {
+        alert("Link postingan telah disalin!");
+      }
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>
@@ -97,7 +118,10 @@ export default function IsiberitaClient() {
                 <span>{new Date(artikel.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</span>
               </div>
             </div>
-            <Button className="bg-[#008275] hover:bg-[#02a191] text-white px-6 py-2">
+            <Button
+              className="bg-[#008275] hover:bg-[#02a191] text-white px-6 py-2"
+              onClick={handleShare}
+            >
               <Share2 className="w-4 h-4 mr-2" />
               Bagikan Postingan
             </Button>
