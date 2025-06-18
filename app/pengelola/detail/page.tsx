@@ -254,7 +254,7 @@ export default function DetailDestinasi() {
                 Alamat Lengkap
               </Label>
               <Textarea id="alamat" className="mt-1" />
-            </div>.
+            </div>
 
             <div>
               <Label htmlFor="pengunjung-max" className="text-[#575757]">
