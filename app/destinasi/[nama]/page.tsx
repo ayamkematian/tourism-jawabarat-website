@@ -118,7 +118,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         const tanggal = `${yyyy}-${mm}-${dd}`;
 
         // Path: Rata2LoggingESP/{nama}/Per_hari/{tanggal}/DataPerJam
-        const colRef = collection(db, `Rata2LoggingESP/${nama}/Per_hari/${tanggal}/DataPerJam`);
+        const colRef = collection(db, `Rata2LoggingESP/${nama}/Per_hari/2025-06-16/DataPerJam`);
         const snapshot = await getDocs(colRef);
         const jamArr: string[] = [];
         const suhuArr: number[] = [];
