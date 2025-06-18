@@ -2,9 +2,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const router = useRouter()
   return (
     <div className="min-h-screen bg-white text-[#2d2d2d]">
       <head><link rel="icon" href="/tic.png" /></head>
@@ -74,7 +76,10 @@ export default function Home() {
             <p className="text-[#4a4a4a] text-sm mb-4">
               Informasi Lengkap di Ujung Jari. Wujudkan Liburan Hebat Sepanjang Hari!
             </p>
-            <button className="w-full bg-[#1e1e1e] text-white py-3 rounded hover:bg-black transition-colors">
+            <button
+              className="w-full bg-[#1e1e1e] text-white py-3 rounded hover:bg-black transition-colors"
+              onClick={() => router.push("/destinasi")}
+            >
               Mulai
             </button>
           </div>
