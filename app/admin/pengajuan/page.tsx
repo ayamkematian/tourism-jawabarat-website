@@ -167,7 +167,7 @@ export default function PengajuanPage() {
     <div className="space-y-6 px-2 sm:px-4 md:px-6 max-w-3xl mx-auto w-full">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">List Pengajuan Destinasi</h1>
-        <p className="text-gray-600">Kelola pengajuan destinasi</p>
+        <p className="text-gray-600">Kelola pengajuan destinasi wisata</p>
       </div>
 
       <Card className="w-full max-w-full">
