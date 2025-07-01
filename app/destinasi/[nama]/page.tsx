@@ -59,7 +59,8 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     const sensorRef = ref(database, `Sensor/${nama}`)
     // Listener PeopleInside
     const peopleListener = onValue(peopleRef, (snapshot) => {
-      const dbValue = snapshot.val()
+      let dbValue = snapshot.val()
+      if (typeof dbValue === "number" && dbValue < 0) dbValue = 0
       setDensity(dbValue)
       if (destinasi.pengunjung_max) {
         const percent = Math.round((dbValue / destinasi.pengunjung_max) * 100)
