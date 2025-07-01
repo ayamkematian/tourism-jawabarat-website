@@ -76,7 +76,7 @@ export default function DestinasiPage() {
       <head><link rel="icon" href="/tic.png" /></head>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Daftar Destinasi</h1>
-        <p className="text-gray-600">Kelola destinasi dan akomodasi wisata yang telah disetujui</p>
+        <p className="text-gray-600">Kelola destinasi wisata yang telah disetujui</p>
       </div>
 
       <Card>
