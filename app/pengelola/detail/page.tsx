@@ -206,6 +206,26 @@ export default function DetailDestinasi() {
       ]);
       if (insertError) throw insertError;
 
+      // Insert juga ke tabel destinasi
+      const { error: destinasiError } = await supabase.from("destinasi").insert([
+        {
+          nama: pendaftaranData?.namaTempat || "",
+          slug,
+          deskripsi,
+          kategori,
+          jambuka,
+          hargatiket,
+          alamat,
+          lokasi,
+          google_maps_url: googleMapsUrl,
+          tiket_url: tiketUrl,
+          fotourl: fotoUrls,
+          pengunjung_max: pengunjungMax === "" ? null : parseInt(pengunjungMax, 10),
+          status: "pending",
+        },
+      ]);
+      if (destinasiError) throw destinasiError;
+
       // Kirim notifikasi ke admin
       await supabase.from("notifikasii").insert({
         user_email: null,
