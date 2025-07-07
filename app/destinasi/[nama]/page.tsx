@@ -7,6 +7,7 @@ import { getDatabase, ref, child, get, onValue, off } from "firebase/database"
 import firebaseApp from "@/backend/firebase-sdk"
 import { supabase } from "@/lib/supabaseClient"
 import React from "react"
+import { createClient } from "@supabase/supabase-js"
 import dynamic from "next/dynamic"
 import "@/components/chart-setup"
 import { getFirestore, collection, getDocs } from "firebase/firestore"
@@ -26,6 +27,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
   const [humidity, setHumidity] = useState<number | null>(null)
   const [temperature, setTemperature] = useState<number | null>(null)
   const [densityPercent, setDensityPercent] = useState<number | null>(null)
+  const [fotoESPCamUrl, setFotoESPCamUrl] = useState<string | null>(null);
   const rainPercent = rainStatus === "hujan" ? 100 : 0
   const [sensorHistory, setSensorHistory] = useState<any>({})
   const [chartData, setChartData] = useState<any>(null)
@@ -50,6 +52,48 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     }
     fetchDestinasi()
   }, [nama])
+
+  // Ambil foto terbaru dari bucket Supabase "foto-dari-espcam"
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    const fetchLatestFoto = async () => {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Ambil daftar file di bucket
+        const { data: files, error } = await supabase
+          .storage
+          .from("foto-dari-espcam")
+          .list("", { limit: 100, sortBy: { column: "name", order: "desc" } });
+
+        if (error || !files || files.length === 0) {
+          setFotoESPCamUrl(null);
+          return;
+        }
+
+        // File terbaru = urutan pertama (karena sort desc)
+        const latestFile = files[0].name;
+
+        // Buat signed url
+        const { data: signed } = await supabase
+          .storage
+          .from("foto-dari-espcam")
+          .createSignedUrl(latestFile, 60 * 10); // 10 menit
+
+        setFotoESPCamUrl(signed?.signedUrl || null);
+      } catch {
+        setFotoESPCamUrl(null);
+      }
+    };
+
+    fetchLatestFoto();
+    // Auto refresh setiap 30 detik
+    interval = setInterval(fetchLatestFoto, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Listener dinamis untuk PeopleInside dan Sensor
   useEffect(() => {
@@ -251,7 +295,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         {/* Info Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Map */}
-          <div className="bg-[#fafafa] rounded-lg p-4 h-[300px] relative">
+          <div className="bg-[#fafafa] rounded-lg p-4 h-[380px] relative">
             <div
               className={`absolute inset-0 rounded-lg flex flex-col items-center justify-center transition-all duration-300 ${
                 getDensityColor(densityPercent)
@@ -268,102 +312,27 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
             </div>
           </div>
 
-          {/* Weather Info */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h3 className="text-lg font-medium mb-2">Cuaca Hari Ini di {destinasi.nama}</h3>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-6">
-                {/* Suhu */}
-                <div className="flex flex-col items-center">
-                  <p className="text-sm text-gray-500">Suhu Saat Ini</p>
-                  <div className="text-6xl font-bold flex items-start">
-                    {temperature !== null ? temperature : "--"}
-                    <span className="text-2xl">°</span>
-                  </div>
-                </div>
-                {/* Hujan/Awan */}
-                <div className="flex flex-col items-center">
-                  {rainStatus === "Hujan" ? (
-                    <>
-                      {/* Icon Hujan */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="36"
-                        height="36"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        className="text-blue-500 mb-1"
-                      >
-                        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
-                        <path d="M16 14v3"/>
-                        <path d="M8 14v3"/>
-                        <path d="M12 16v3"/>
-                      </svg>
-                      <span className="text-blue-600 font-medium">Hujan</span>
-                    </>
-                  ) : (
-                    <>
-                      {/* Icon Awan */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="36"
-                        height="36"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        className="text-gray-400 mb-1"
-                      >
-                        <path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.31 2.16A4 4 0 1 0 6 19h11.5z"/>
-                      </svg>
-                      <span className="text-gray-600 font-medium">Tidak Hujan</span>
-                    </>
-                  )}
-                </div>
+          {/* Foto kondisi dari ESPCam Supabase */}
+          <div className="border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center h-[380px] bg-white">
+            <h3 className="text-lg font-medium mb-2">Kondisi Terkini di {destinasi.nama}</h3>
+            {fotoESPCamUrl ? (
+              <Image
+              src={fotoESPCamUrl}
+              alt={`Kondisi Terkini di ${destinasi.nama}`}
+              width={400}
+              height={300}
+              className="rounded-lg object-cover w-full"
+              style={{ aspectRatio: "4/3", maxWidth: 400, maxHeight: 300, height: 300 }}
+            />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[220px] w-full text-gray-400">
+                <svg width="60" height="60" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="8" y="16" width="48" height="32" rx="4" />
+                  <circle cx="32" cy="32" r="8" />
+                </svg>
+                <span className="mt-2 text-sm">Foto kondisi belum tersedia</span>
               </div>
-
-              {/* Kelembapan */}
-              <div className="w-full mt-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 2v2"></path>
-                      <path d="M12 8v2"></path>
-                      <path d="M12 14v2"></path>
-                      <path d="M12 20v2"></path>
-                      <path d="M2 12h2"></path>
-                      <path d="M8 12h2"></path>
-                      <path d="M14 12h2"></path>
-                      <path d="M20 12h2"></path>
-                      <path d="m4.93 4.93 1.41 1.41"></path>
-                      <path d="m17.66 17.66 1.41 1.41"></path>
-                      <path d="m4.93 19.07 1.41-1.41"></path>
-                      <path d="m17.66 6.34 1.41-1.41"></path>
-                    </svg>
-                    Kelembapan
-                  </span>
-                  <span>{humidity !== null ? `${Math.round(humidity)}%` : "--"}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-[#008275] h-2 rounded-full"
-                    style={{ width: humidity !== null ? `${Math.round(humidity)}%` : "0%" }}
-                  ></div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
