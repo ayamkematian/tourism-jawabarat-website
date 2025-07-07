@@ -489,12 +489,27 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
                 {/* Tombol Beli Tiket jika tiket_url tersedia */}
                 {destinasi.tiket_url && (
                   <a
-                    href={destinasi.tiket_url}
+                    href={destinasi.google_maps_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-3 px-4 py-2 bg-[#008275] text-white rounded-md font-semibold hover:bg-[#006e67] transition"
+                    className="inline-flex items-center mt-3 text-[#008275] hover:underline"
                   >
-                    Beli Tiket
+                    <span>Beli Tiket di Sini</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="ml-1"
+                    >
+                      <path d="M7 7h10v10"></path>
+                      <path d="M7 17 17 7"></path>
+                    </svg>
                   </a>
                 )}
               </div>
