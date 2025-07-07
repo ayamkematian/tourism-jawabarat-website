@@ -6,6 +6,7 @@ import { Clock, MapPin, Bell } from "lucide-react"
 import { supabase } from "../../../lib/supabaseClient"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Pencil, Trash2} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -57,12 +58,14 @@ export default function PengelolaDashboardPage() {
         .eq("role", "pengelola")
         .single()
       if (!pengelola?.id) return setLoading(false)
+
       // Hitung total destinasi
       const { count } = await supabase
         .from("daftar_destinasi")
         .select("*", { count: "exact", head: true })
         .eq("pengelola_id", pengelola.id)
       setTotalPages(count ? Math.ceil(count / pageSize) : 1)
+
       // Ambil destinasi sesuai halaman
       const from = (currentPage - 1) * pageSize
       const to = from + pageSize - 1
@@ -95,6 +98,20 @@ export default function PengelolaDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showList, currentPage])
 
+    // Fungsi untuk hapus destinasi
+    const handleDelete = async (id: string) => {
+      if (!confirm("Apakah Anda yakin ingin menghapus destinasi ini?")) return;
+      setLoading(true);
+      await supabase.from("daftar_destinasi").delete().eq("id", id);
+      setDestinations((prev) => prev.filter((d) => d.id !== id));
+      setLoading(false);
+    }
+  
+    // Fungsi untuk edit destinasi (redirect ke halaman edit)
+    const handleEdit = (id: string) => {
+      router.push(`/pengelola/edit-destinasi/${id}`);
+    };
+    
   useEffect(() => {
     if (!email) return;
     const fetchNotifikasi = async () => {
@@ -185,26 +202,41 @@ export default function PengelolaDashboardPage() {
                         <p className="text-[#888888] text-xs">Didaftarkan pada: {destination.registrationDate}</p>
                       </div>
                       <div className="flex items-center gap-2 mt-2 md:mt-0">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          destination.status === "pending"
-                            ? "bg-[#fff3cd] text-[#856404]"
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            destination.status === "pending"
+                              ? "bg-[#fff3cd] text-[#856404]"
+                              : destination.status === "Disetujui"
+                              ? "bg-[#d4edda] text-[#155724]"
+                              : destination.status === "Ditolak"
+                              ? "bg-[#f8d7da] text-[#721c24]"
+                              : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {destination.status === "pending"
+                            ? "Dalam Proses"
                             : destination.status === "Disetujui"
-                            ? "bg-[#d4edda] text-[#155724]"
+                            ? "Disetujui"
                             : destination.status === "Ditolak"
-                            ? "bg-[#f8d7da] text-[#721c24]"
-                            : "bg-gray-200 text-gray-600"
-                        }`}
-                      >
-                        {destination.status === "pending"
-                          ? "Dalam Proses"
-                          : destination.status === "Disetujui"
-                          ? "Disetujui"
-                          : destination.status === "Ditolak"
-                          ? "Ditolak"
-                          : destination.status}
-                      </span>
-                    </div>
+                            ? "Ditolak"
+                            : destination.status}
+                        </span>
+                        {/* Tombol Edit dan Hapus */}
+                        <button
+                          className="ml-2 p-1 rounded hover:bg-gray-100"
+                          title="Edit"
+                          onClick={() => handleEdit(destination.id)}
+                        >
+                          <Pencil className="w-4 h-4 text-[#008275]" />
+                        </button>
+                        <button
+                          className="ml-1 p-1 rounded hover:bg-red-100"
+                          title="Hapus"
+                          onClick={() => handleDelete(destination.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
                     </div>
                     {destination.description && <p className="text-[#575757] mb-4 line-clamp-2 text-xs sm:text-base">{destination.description}</p>}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs sm:text-sm">

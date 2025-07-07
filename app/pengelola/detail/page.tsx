@@ -12,6 +12,8 @@ export default function DetailDestinasi() {
   const [destinationPhotos, setDestinationPhotos] = useState<File[]>([])
   const [submitLoading, setSubmitLoading] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  const [googleMapsUrl, setGoogleMapsUrl] = useState("");
+  const [tiketUrl, setTiketUrl] = useState("");
   const router = useRouter()
 
   const lokasiList = [
@@ -159,6 +161,8 @@ export default function DetailDestinasi() {
       const hargatiket = hargatiketStr === "" ? null : parseInt(hargatiketStr, 10);
       const alamat = (document.getElementById("alamat") as HTMLTextAreaElement)?.value || "";
       const lokasi = (document.getElementById("lokasi") as HTMLSelectElement)?.value || "";
+      const googleMapsUrl = (document.getElementById("google-maps-url") as HTMLInputElement)?.value || "";
+      const tiketUrl = (document.getElementById("tiket-url") as HTMLInputElement)?.value || "";
 
       // 4. Gabungkan semua data
       const slug = pendaftaranData.namaTempat
@@ -192,6 +196,8 @@ export default function DetailDestinasi() {
           hargatiket,
           alamat,
           lokasi,
+          google_maps_url: googleMapsUrl,
+          tiket_url: tiketUrl,
           pengelola_id: pengelolaId,
           fotourl: fotoUrls,
           pengunjung_max: pengunjungMax === "" ? null : parseInt(pengunjungMax, 10),
@@ -288,6 +294,33 @@ export default function DetailDestinasi() {
                   <option key={idx} value={nama}>{nama}</option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <Label htmlFor="google-maps-url" className="text-[#575757]">
+                Link Google Maps
+              </Label>
+              <Input
+                id="google-maps-url"
+                type="url"
+                className="mt-1"
+                placeholder="https://maps.google.com/..."
+                value={googleMapsUrl}
+                onChange={e => setGoogleMapsUrl(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="tiket-url" className="text-[#575757]">
+                Link Pembelian Tiket (Opsional)
+              </Label>
+              <Input
+                id="tiket-url"
+                type="url"
+                className="mt-1"
+                placeholder="https://tiket.com/..."
+                value={tiketUrl}
+                onChange={e => setTiketUrl(e.target.value)}
+              />
             </div>
           </div>
           
