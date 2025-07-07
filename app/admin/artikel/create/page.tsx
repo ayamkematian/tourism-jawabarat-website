@@ -55,13 +55,18 @@ export default function CreateArtikelPage() {
 
     try {
       const adminEmail = localStorage.getItem("adminEmail")
-      const { data: adminData } = await supabase.from("admin").select("id, nama_admin").eq("email", adminEmail).single()
+      const { data: adminData } = await supabase
+      .from("users")
+      .select("id, namalengkap")
+      .eq("email", adminEmail)
+      .eq("role", "admin")
+      .single()
 
       const artikelData = {
         ...formData,
         status,
         author_id: adminData?.id,
-        author_name: adminData?.nama_admin,
+        author_name: adminData?.namalengkap,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
