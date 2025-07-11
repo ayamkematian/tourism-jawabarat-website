@@ -327,31 +327,6 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         </div>
       </div>
 
-        {/* Tambahkan grafik suhu rata-rata (kecil, di atas deskripsi) */}
-        <div className="max-w-md mx-auto mt-8 mb-4">
-          {chartData ? (
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <h3 className="text-base font-semibold mb-2 text-[#008275]">Grafik Rata-rata Suhu Hari Ini</h3>
-              <Chart
-                data={chartData}
-                options={{
-                  responsive: true,
-                  plugins: { legend: { display: false } },
-                  scales: {
-                    x: { title: { display: true, text: 'Jam' }, ticks: { font: { size: 10 } } },
-                    y: { title: { display: true, text: 'Suhu (°C)' }, min: 0, max: 50, ticks: { font: { size: 10 } } },
-                  },
-                }}
-                height={180}
-              />
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 text-center text-gray-500">
-              Data grafik suhu rata-rata belum tersedia untuk hari ini.
-            </div>
-          )}
-        </div>
-
         {/* Detailed Information Section */}
         <div className="mt-8 space-y-6">
           {/* Description - Full Width */}
