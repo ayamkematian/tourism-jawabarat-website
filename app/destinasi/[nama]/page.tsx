@@ -53,7 +53,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     fetchDestinasi()
   }, [nama])
 
-  // Ambil foto terbaru dari bucket Supabase "foto-dari-espcam"
+  // Ambil foto terbaru dari bucket Supabase
   useEffect(() => {
     const fetchLatestFoto = async () => {
       try {
@@ -61,10 +61,13 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        // Gunakan nama destinasi sebagai nama bucket
+        const bucketName = nama;
+
         // Ambil daftar file di bucket
         const { data: files, error } = await supabase
           .storage
-          .from("foto-dari-espcam")
+          .from(bucketName)
           .list("", { limit: 100, sortBy: { column: "name", order: "desc" } });
 
         if (error || !files || files.length === 0) {
@@ -78,7 +81,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
         // Buat signed url
         const { data: signed } = await supabase
           .storage
-          .from("foto-dari-espcam")
+          .from(bucketName)
           .createSignedUrl(latestFile, 60 * 10); // 10 menit
 
         setFotoESPCamUrl(signed?.signedUrl || null);
@@ -88,7 +91,7 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     };
 
     fetchLatestFoto();
-  }, []);
+  }, [nama]);
 
   // Listener dinamis untuk PeopleInside dan Sensor
   useEffect(() => {
@@ -216,13 +219,6 @@ export default function DestinasiPage({ params }: { params: Promise<{ nama: stri
     if (percent > 30) return "bg-yellow-200 text-yellow-800"
     if (percent > 0) return "bg-green-100 text-green-700"
     return "bg-gray-200 text-gray-500"
-  }
-
-  const getDensityLabel = (value: number) => {
-    if (value > 3) return "Sangat Padat"
-    if (value > 2) return "Padat"
-    if (value > 1) return "Renggang"
-    return "Sepi"
   }
 
   if (error) {
